@@ -1,0 +1,103 @@
+\section{Artificial Intelligence for Endoscopic Decision Support}
+\label{sec:artificial_intelligence}
+
+\subsection*{Introduction}
+Artificial Intelligence (\textbf{AI}) refers to computational methods that can perform tasks
+usually associated with human intelligence, such as \textbf{perception}, \textbf{reasoning}, \textbf{learning}, and
+\textbf{decision-making}. In practice, modern AI systems in healthcare are mostly data-driven:
+they learn patterns from curated datasets and are judged with \textbf{task-specific metrics}
+\cite{goodfellow2016deep,litjens2017dlSurvey}.
+
+Recent surveys and systematic reviews summarize modern polyp-detection methods and
+their clinical diagnostic performance \cite{elkarazle2023sensors,nazarian2021jmir,deep2023endoscopic}.
+
+Note: these detection and segmentation studies describe the broader clinical
+perception literature. This work does not train or evaluate a polyp detector; we cite
+this work because the same perception issues also matter for navigation and snare
+capture.
+
+For endoscopy and polypectomy, AI is primarily used to (i) interpret endoscopic video
+streams, and (ii) support consistent decisions under time pressure. This includes
+detecting lesions, delineating margins, estimating uncertainty, and supporting
+procedure-level decisions that depend on sequential context. Randomized controlled
+trials have shown that real-time computer-aided detection can increase polyp and
+adenoma detection rates during colonoscopy \cite{wang2019cade,repici2020cade}.
+
+Simulation platforms and general RL/agent toolkits (like \textbf{Unity ML-Agents}) are often
+used to prototype interactive assistance systems and train policies in controlled
+environments \cite{juliani2018unity}.
+
+\subsection{Main Approaches Relevant to This Work}
+The AI landscape is huge, but the following approaches are the ones that matter most
+for intelligent endoscopic assistance:
+
+\begin{itemize}
+    \item \textbf{Machine Learning (ML):} learning predictive models from data.
+  \item \textbf{Deep Learning (DL):} neural networks with multiple layers, especially effective
+  for images and video.
+   \item \textbf{Computer Vision (CV):} extracting information from images (detection,
+  segmentation, tracking). Note that lesion detection is a large subfield whose
+  outputs can be complementary to the navigation/capture approach used in this
+  project, but detection models are out of scope for the implemented agents.
+  \item \textbf{Reinforcement Learning (RL):} learning sequential decision policies from
+  interaction and feedback.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Mapping AI approaches to typical endoscopic assistance tasks}
+\begin{tabular}{|l|l|l|}
+\hline
+	extbf{Approach} & \textbf{Typical Output} & \textbf{Example Use in Endoscopy} \\ \hline
+Supervised DL & Class / mask / box & Lesion detection and segmentation (related literature; out of scope) \\ \hline
+Self/weakly-supervised DL & Representation & Pretraining for domain robustness \\ \hline
+CV + tracking & Trajectory / ID & Stabilizing lesion localization across frames \\ \hline
+RL / sequential learning & Policy / action & Viewpoint/tool positioning policies \\ \hline
+\end{tabular}
+\label{tab:ai_endoscopy_mapping}
+\end{table}
+\begin{figure}[h]
+\centering
+\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: AI pipeline diagram}}
+\caption{AI pipeline for endoscopic assistance (placeholder).}
+\label{fig:ai_pipeline}
+\end{figure}
+
+\subsection{AI Tasks in Clinical Endoscopy}
+Endoscopic assistance systems are often evaluated on a small set of operational tasks:
+
+\begin{itemize}
+  \item \textbf{Detection:} flagging candidate polyps with minimal delay.
+  \item \textbf{Segmentation:} delineating lesion boundaries for size estimation and margin
+  awareness.
+  \item \textbf{Classification:} characterizing lesions (e.g., benign vs. suspicious patterns)
+  as decision support.
+  \item \textbf{Quality monitoring:} procedure-level indicators such as mucosal visibility,
+  coverage, or timing-related proxies.
+\end{itemize}
+
+While detection and segmentation can be framed as frame-level problems, polypectomy
+and safe completion are clearly sequential. That is why it makes sense to combine
+perception modules with decision modules that use temporal context.
+
+\subsection{Constraints: Safety, Robustness, and Evaluation}
+Clinical deployment imposes constraints that strongly influence model design and
+evaluation:
+
+\begin{itemize}
+  \item \textbf{Safety:} false negatives can be clinically costly, while false positives can
+  distract and reduce trust.
+  \item \textbf{Domain shift:} models must generalize across devices, centers, patient
+  populations, and imaging conditions.
+  \item \textbf{Latency:} assistance must be real-time and stable (avoid flickering outputs).
+  \item \textbf{Interpretability and usability:} outputs must be understandable and useful
+  during the procedure.
+\end{itemize}
+
+These constraints push us toward system-level evaluation, not just per-frame accuracy,
+and they also make the link between perception and decision-making much tighter.
+
+\subsection{Summary}
+AI is the big umbrella under which both vision-based perception and sequential
+decision-making sit. The next section focuses on reinforcement learning, which is a
+very natural way to model procedural decisions.

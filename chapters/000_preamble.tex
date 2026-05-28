@@ -1,0 +1,44 @@
+%-------------------------------------------------------
+% Preamble - All imports and configurations
+%-------------------------------------------------------
+
+% Additional packages
+\usepackage{subcaption}  % For subfigures
+\usepackage{booktabs}    % For professional tables
+\usepackage{float}       % For better figure placement
+
+%-------------------------------------------------------
+% Figure placement - keep figures close to their text
+%-------------------------------------------------------
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.7}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{5}
+
+%-------------------------------------------------------
+% Graphics path
+%-------------------------------------------------------
+\graphicspath{{assets/}}
+
+%-------------------------------------------------------
+% Listings (Source codes) configuration
+%-------------------------------------------------------
+\definecolor{color-lst-string}{RGB}{166,95,18}
+\definecolor{color-lst-annotation}{RGB}{128,128,0}
+\definecolor{color-lst-constant}{RGB}{5,133,5}
+\definecolor{color-lst-keyword}{RGB}{33,33,255}
+\definecolor{color-lst-class}{RGB}{0,112,192}
+\definecolor{color-lst-accessor}{RGB}{125,0,84}
+\definecolor{color-lst-comment}{RGB}{168,166,171}
+
+% Python language definition
+\lstdefinelanguage{Python}{
+	morekeywords={import,from,class,def,for,while,if,else,elif,return,try,except,with,as,lambda,None,True,False,and,or,not,in,is},
+	sensitive=true,
+	morecomment=[l]{\#},
+	morestring=[b]',
+	morestring=[b]",
+}

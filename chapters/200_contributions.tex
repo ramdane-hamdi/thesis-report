@@ -1,0 +1,114 @@
+\chapter{Contributions}
+\label{chap:contributions}
+
+\section*{Introduction}
+This chapter explains what was actually built in the project. The main contribution is a
+two-phase Unity simulation where reinforcement learning is used for endoscope
+navigation and snare capture. I keep the wording simple here on purpose, because the
+important part is the system itself, not fancy language.
+
+The work is split into two parts:
+
+\begin{itemize}
+	\item Phase~1 learns how to steer the endoscope through a colon-like path while
+	forward movement is scripted.
+	\item Phase~2 learns how to control the snare and capture a predefined polyp object
+	using discrete actions and reward shaping.
+\end{itemize}
+
+This setup helped keep the problem manageable. Instead of trying to solve everything at
+once, the project separates navigation from capture, which makes training, debugging,
+and evaluation much easier.
+
+Another contribution is the way the environment is structured. The agents use only
+camera input, the rewards are designed around safety and progress, and the capture task
+uses layered gating so the policy cannot just rush into the target without learning the
+right sequence.
+
+Finally, the report and code documentation were written so the experiments can be
+reproduced more easily. That includes the PPO configuration files, the network
+structure, and the main Unity scripts used in each phase.
+ 
+
+\section{Overview}
+\addcontentsline{toc}{section}{Overview}
+This section expands the description of the implemented two-phase reinforcement
+learning system. The goal is to learn endoscope navigation and an associated
+snare-capture behavior in a simulated Unity environment. Important clarification:
+the system does \emph{not} perform polyp detection or classification. The agent
+policies are vision-only and map tip-camera images to discrete control actions.
+
+\section{System Architecture}
+\addcontentsline{toc}{section}{System Architecture}
+The environment is implemented in Unity with ML-Agents for training. Key components
+include `EndoscopeController` (tip kinematics and collision handling),
+`EndoscopeActionDriver` (action mapping), `EndoscopeBurstPusher` (scripted insertion
+for Phase~1), `PolypCaptureZone` and `PolypContactSensor` (layered capture logic), and
+`SnareSlideController`.
+
+The work is split into two phases to simplify exploration and evaluation:
+\begin{itemize}
+	\item Phase~1: navigation (steering only, scripted forward push).
+	\item Phase~2: snare capture (steering + snare extension/rotation/open-close).
+\end{itemize}
+
+\section{Observations and Actions}
+\addcontentsline{toc}{section}{Observations and Actions}
+Both agents use a single tip-mounted RGB camera rendered at 80$\times$80 pixels. No
+external detectors or segmentation masks are provided to the agents; policies learn
+directly from images.
+
+Phase~1 action space: one discrete branch with five actions (none, right, down,
+left, up) that produce steering inputs. Forward motion is scripted by
+`EndoscopeBurstPusher`.
+
+Phase~2 action space: four discrete branches controlling steering (5 actions), snare
+slide (3 actions), snare rotation (3 actions), and open/close (3 actions).
+
+\section{Reward Design and Safety}
+\addcontentsline{toc}{section}{Reward Design and Safety}
+Rewards are shaped to encourage progress while discouraging unsafe contacts. Phase~1
+uses a small alive reward, a goal bonus on reaching a trigger, and collision
+penalties. Phase~2 uses layered rewards via `PolypCaptureZone` (increasing rewards
+for progressing through layers), extension progress bonuses, and contact-based
+outcomes (goal sphere = success, large sphere = penalty, colon contact = failure).
+
+The report documents the exact numeric coefficients used during experiments; these
+are reproduced in the `config/` YAML files.
+
+\section{Network Architectures and Training}
+\addcontentsline{toc}{section}{Network Architectures and Training}
+Policies are trained with Proximal Policy Optimization (PPO). The visual encoder is a
+small convolutional network that produces a 256-dimensional embedding, followed by
+two 256-unit MLP layers and an LSTM memory module (sequence length 64, memory size
+128). Policy heads are multi-categorical to match discrete branches. Phase~2 may
+use an auxiliary curiosity signal to aid exploration.
+
+Training hyperparameters (batch sizes, buffers, learning rates, schedules) are
+stored in `config/endoscope_nav_ppo.yaml` and `config/snare_capture_ppo.yaml`.
+
+\section{Evaluation Protocol}
+\addcontentsline{toc}{section}{Evaluation Protocol}
+Evaluation uses deterministic checkpoints and fixed seeds. Reported metrics include
+success rate, collision rate, time-to-success, and layer progression statistics.
+For reproducibility, list the number of seeds, evaluation episode count, and the
+policy selection heuristic (best validation checkpoint vs last checkpoint).
+
+\section{Limitations}
+\addcontentsline{toc}{section}{Limitations}
+This simulation uses Unity rigid-body physics and simplified spherical polyps. The
+environment is intended for algorithmic investigation and not for clinical claims.
+Where appropriate, the discussion in Chapter~\ref{chap:state_of_the_art} cites the
+clinical and perception literature to contextualize results.
+
+\section{Reproducibility}
+\addcontentsline{toc}{section}{Reproducibility}
+To reproduce experiments install the ML-Agents Python trainers version used during
+development and match the Unity editor version. Include `config/` files, the exact
+checkpoint hashes, and scripts to run evaluation.
+
+\section{Files of Interest}
+\addcontentsline{toc}{section}{Files of Interest}
+See `Assets/` for Unity scripts and `config/` for trainer settings. Trainer source
+details referenced in the repository's `.venv` folder are helpful for exact network
+semantics.

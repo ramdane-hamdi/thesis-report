@@ -1,0 +1,124 @@
+\chapter*{General Introduction}
+\addcontentsline{toc}{chapter}{General Introduction}
+\chaptermark{General Introduction}
+\label{chap:general_introduction}
+
+\section*{Project Background}
+\addcontentsline{toc}{section}{Project Background}
+
+Colorectal cancer is still a major public health problem worldwide \cite{sung2021globocan}.
+One of the best ways to reduce that risk is to remove suspicious polyps early, which is
+why \textbf{polypectomy} matters so much \cite{winawer1993polypectomy}. Even though the
+procedure is common, it is not simple: the final result depends on the operator, the
+quality of the view, the shape of the lesion, and the pressure of making good decisions
+in real time.
+
+Even with good screening programs, tandem colonoscopy studies still report meaningful
+\textbf{adenoma} (a type of polyp that can become cancerous) miss rates
+\cite{zhao2019adenomaMiss}. Also, quality measures like \textbf{adenoma detection rate}
+are linked with future colorectal cancer risk \cite{corley2014adr}.
+
+This work studies how intelligent methods can support \textbf{polypectomy} by
+combining computer vision and \textbf{reinforcement learning} (RL, learning by trial and
+error using rewards). The main idea is to help an agent read the scene, understand what
+is happening, and choose better actions in a simulated setting. The goal here is to
+study how perception and action work together in a sequence of decisions, not to build a
+clinical detector.
+
+\section*{Problem}
+\addcontentsline{toc}{section}{Problem}
+\vspace{-0.5em}
+The core problem is to design a \textbf{learning-based control and perception framework}
+for \textbf{polypectomy-like tasks} that works under realistic constraints:
+\textbf{partial and noisy visual observations}, \textbf{delayed or limited instrument control},
+and strict \textbf{safety requirements}. Concretely, the main technical challenges are to:
+interpret noisy imagery reliably, decide actions that avoid tissue damage, time interventions
+under uncertainty, and remain robust when the visual scene changes or tools occlude
+important features.
+
+Concretely, this work addresses the following specific questions:
+\begin{itemize}
+\item \textbf{Perception → Action:} How can an agent learn to use visual observations
+	(single frames, short temporal stacks, or depth cues) to select \textbf{safe and effective}
+	actions during a polypectomy-like task?
+\item \textbf{Learning & Transfer:} How can training be organised so the model improves
+	in \textbf{simulation} while enforcing \textbf{safety limits} and conservative procedures
+	for later transfer to real hardware?
+\item \textbf{Reward & Representation:} How should the \textbf{reward function} and
+	\textbf{observation encoding} be designed so the agent balances \textbf{tissue preservation},
+	precision of resection, and task efficiency?
+\item \textbf{Robustness:} How to make policies resilient to \textbf{domain shift} such as
+	camera viewpoint changes, lighting variability, specular highlights, and instrument occlusion?
+\item \textbf{Safety Mechanisms:} What \textbf{safety checks}, motion limits, and fallback
+	strategies are required to prevent harmful actions during transfer from simulation to
+	a physical endoscope?
+\item \textbf{Evaluation:} Beyond simple success/failure, which metrics (\textbf{stability},
+	\textbf{precision}, \textbf{efficiency}, and \textbf{clinician acceptability}) best capture
+	practical usefulness?
+\end{itemize}
+
+This problem is motivated by the project theme: build a \textbf{learning-based system}
+for sequential decision-making in \textbf{simulated polypectomy tasks}. The aim is to
+explore technical solutions that prioritise safety, interpretability, and robust
+behaviour under realistic visual and control constraints.
+
+\section*{Objectives}
+\addcontentsline{toc}{section}{Objectives}
+The objectives of this work are:
+\begin{itemize}
+\item to review the clinical and technical background of \textbf{polypectomy} and the main
+intelligent methods linked to it;
+\item to study how machine learning, deep learning, and \textbf{reinforcement learning}
+can help medical decision-making;
+\item to design a learning-based framework that fits sequential decision-making in
+polyp removal;
+\item to identify the evaluation criteria that matter most for performance, stability,
+and practical usefulness.
+\end{itemize}
+
+\section*{Proposed Approach}
+\addcontentsline{toc}{section}{Proposed Approach}
+In this work, we propose a learning-based framework that combines simple visual
+processing with sequential decision learning. The main objectives are to build a safe
+simulation environment, train agents that can act reliably in that environment, and
+evaluate how well learned policies generalize across cases.
+
+Main solutions and steps:
+\begin{itemize}
+\item \textbf{Simulation and data:} build a Unity-based simulated environment with
+predefined targets and controls for the endoscope and tools.
+\item \textbf{Learning pipeline:} use convolutional networks (CNNs) for visual encoding
+and reinforcement learning (PPO) for sequential control, with careful reward shaping.
+\item \textbf{Safety and limits:} design safety checks, motion limits, and conservative
+transfer steps for any prototype testing.
+\item \textbf{Evaluation:} define clear metrics (success rate, stability, efficiency) and
+compare learned behavior to baseline scripted or expert demonstrations.
+\end{itemize}
+
+These solutions target the problem by combining perception, action, and safe practice
+within a controlled simulation.
+
+\section*{Document Plan}
+\addcontentsline{toc}{section}{Document Plan}
+The document is arranged in two main parts that follow from the repository's scope:
+
+\begin{itemize}
+\item \textbf{Chapter 1 --- State of the Art:} a concise review that situates the
+	clinical problem (colorectal cancer and polypectomy), summarises key clinical
+	metrics and risks, and surveys technical approaches from computer vision and
+	reinforcement learning that are relevant to the project. This chapter highlights
+	practical gaps and limitations in current methods that motivate the system design.
+
+\item \textbf{Chapter 2 --- Contributions:} an account of the implemented system and
+	the original contributions. In short, this chapter presents an attempt on a
+		extbf{two-phase endoscope reinforcement learning system} that combines a
+		extbf{simulation environment}, a \textbf{perception module} (visual encoder / CNN),
+	and a \textbf{two-level control strategy} (coarse navigation + fine manipulation)
+	trained with reinforcement learning. The chapter documents the design choices,
+	safety measures, training setup, and evaluation metrics used to assess stability,
+	precision, and practical usefulness.
+\end{itemize}
+
+Overall, the document first establishes the clinical and technical context, then
+presents the contributions and the implemented two-phase system together with its
+empirical evaluation.

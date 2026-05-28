@@ -1,0 +1,45 @@
+\chapter{State of the Art}
+\label{chap:state_of_the_art}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+This chapter brings together the clinical and technical background that supports the
+work. The basic idea is simple: if we want to build a useful endoscope agent, we have
+to understand the medical workflow, the \textbf{vision methods} that read the scene, and the
+\textbf{learning methods} that decide what to do next.
+
+In this context, clinical guidance on \textbf{colorectal polypectomy} and endoscopic resection
+gives us the safety baseline \cite{ferlitsch2017esge,kaltenbach2020usmstf}. At the same
+time, recent clinical trials show that real-time computer-aided detection can improve
+lesion detection during routine colonoscopy \cite{wang2019cade,repici2020cade}.
+
+The chapter moves from the clinical context to the learning methods used in intelligent
+systems. Along the way, we keep an eye on the practical things that matter most here:
+\textbf{data quality}, \textbf{safety}, \textbf{robustness}, and \textbf{evaluation}. Those are not just side details; they
+shape the design choices in the rest of the document.
+
+\textbf{Chapter roadmap.} We start with colorectal polyps and polypectomy, then move to
+Artificial Intelligence as the broader field. After that, we cover reinforcement learning
+as the main framework for sequential decision-making, and we review the neural
+architectures used for perception and temporal modeling (\textbf{CNN} and \textbf{LSTM}). We end with
+Proximal Policy Optimization (\textbf{PPO}), the policy-gradient method used in the simulation.
+\input{chapters/101_polypectomy}
+\input{chapters/102_artificial_intelligence}
+\input{chapters/103_RL}
+\input{chapters/104_CNN}
+\input{chapters/105_LSTM}
+\input{chapters/106_PPO}
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+The state of the art makes one thing pretty clear: reliable assistance in endoscopy
+needs both strong \textbf{perception} and solid \textbf{decision-making}. Vision models have to deal with
+different patients, devices, lighting conditions, bowel preparation, occlusions, and
+motion artifacts. Decision policies also need to stay stable under uncertainty and behave
+in a way that actually makes sense clinically.
+
+Across the literature, the same challenges keep showing up: rare events are hard to
+collect, annotations take time, models often fail to generalize across sites, and
+evaluation needs to reflect \textbf{safety constraints}, not just accuracy. These gaps are the
+reason this work focuses on controlled training, careful reward design, and task-level
+metrics that capture both \textbf{performance} and \textbf{safety}.
