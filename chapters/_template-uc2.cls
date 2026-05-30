@@ -199,7 +199,7 @@
 		{\small\bfseries\countryEn}\\
 		{\small\bfseries\ministryEn}\\
 		\vspace*{.5cm}
-		\includegraphics[width=1.8cm]{assets/logo-uc2} \hspace{1.2cm}
+		\includegraphics[width=1.8cm]{assets/logo-uc2-dark} \hspace{1.2cm}
 		\includegraphics[width=1.8cm]{assets/logo-ntic} \hspace{1.2cm}
 		\includegraphics[width=1.8cm]{assets/logo-incubator}\\
 		\vspace*{.3cm}
