@@ -3,7 +3,7 @@
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
-This chapter brings together the clinical and technical background that supports the
+Before trying to make our own solution, we must understand whats already been done in both the clinical and a.i (reinforcment learning mostly) fields, and technical background that supports the
 work. The basic idea is simple: if we want to build a useful endoscope agent, we have
 to understand the medical workflow, the \textbf{vision methods} that read the scene, and the
 \textbf{learning methods} that decide what to do next.
@@ -18,7 +18,7 @@ systems. Along the way, we keep an eye on the practical things that matter most 
 \textbf{data quality}, \textbf{safety}, \textbf{robustness}, and \textbf{evaluation}. Those are not just side details; they
 shape the design choices in the rest of the document.
 
-\textbf{Chapter roadmap.} We start with colorectal polyps and polypectomy, then move to
+\textbf{Chapter roadmap:} We start with colorectal polyps and polypectomy, then move to
 Artificial Intelligence as the broader field. After that, we cover reinforcement learning
 as the main framework for sequential decision-making, and we review the neural
 architectures used for perception and temporal modeling (\textbf{CNN} and \textbf{LSTM}). We end with
@@ -33,13 +33,23 @@ Proximal Policy Optimization (\textbf{PPO}), the policy-gradient method used in 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
 The state of the art makes one thing pretty clear: reliable assistance in endoscopy
-needs both strong \textbf{perception} and solid \textbf{decision-making}. Vision models have to deal with
-different patients, devices, lighting conditions, bowel preparation, occlusions, and
-motion artifacts. Decision policies also need to stay stable under uncertainty and behave
-in a way that actually makes sense clinically.
+needs both clear \textbf{perception} and reliable \textbf{decision-making}. By
+perception we mean the ability of vision models to correctly see and describe the
+scene (for example: detect polyps, identify blood or debris, and recognise tools).
+These models must cope with variation between patients, different endoscope devices
+and settings, changing lighting, uneven bowel preparation, occlusions (fluids or
+debris), and motion blur from camera movement. By decision-making we mean the
+policies that select actions over time; these policies must remain sensible when
+observations are noisy, avoid risky moves, and behave in ways clinicians expect.
 
-Across the literature, the same challenges keep showing up: rare events are hard to
-collect, annotations take time, models often fail to generalize across sites, and
-evaluation needs to reflect \textbf{safety constraints}, not just accuracy. These gaps are the
-reason this work focuses on controlled training, careful reward design, and task-level
-metrics that capture both \textbf{performance} and \textbf{safety}.
+The literature highlights several clear challenges. First, rare but important events
+are difficult to collect in large numbers, so training data can be limited or biased.
+Second, producing accurate annotations is time-consuming and sometimes inconsistent
+between annotators. Third, models trained in one hospital or on one device often do
+not generalise well to other hospitals or devices. Finally, common metrics like
+accuracy do not capture clinical risk, so evaluation must include safety-focused
+measures (for example: missed-lesion rate, number of unsafe actions, and adherence
+to clinical guidelines). To address these gaps, this work focuses on controlled
+training environments, careful reward design that penalises unsafe behaviour, and
+task-level metrics that measure both \textbf{performance} (detection and task success)
+and \textbf{safety} (risk of harm, false negatives, and guideline compliance).

@@ -1,214 +1,121 @@
+\clearpage
 \section{Reinforcement Learning for Sequential Decision-Making}
 \label{sec:reinforcement_learning}
 
 \subsection*{Introduction}
-Reinforcement Learning (\textbf{RL}) is a paradigm of machine learning in which an agent learns to make decisions by interacting with an environment. Unlike supervised learning, which relies on labeled data, or unsupervised learning, which identifies patterns in unlabeled data, reinforcement learning operates through a process of trial and error guided by \textbf{reward signals}.
+Reinforcement Learning (\textbf{RL}) is a way for an agent to learn by trying actions and getting feedback. If the action helps, the agent gets a better reward. If not, it learns and tries again. That simple loop makes RL a good fit for tasks that happen step by step, like moving an endoscope, keeping the view stable, or controlling a snare \cite{sutton2018reinforcement}.
 
-This work follows the standard \textbf{Markov Decision Process} formulation and terminology
-used in modern RL literature \cite{sutton2018reinforcement}. We also use a few classic
-deep RL results, like \textbf{DQN} and \textbf{AlphaGo}, to show how far the field has come
-\cite{mnih2015dqn,silver2016alphago}.
-
-This chapter introduces the fundamental concepts of reinforcement learning, the mathematical framework of Markov Decision Processes, core solution methods, and key applications. The discussion emphasizes concepts necessary for understanding modern policy-based methods such as \textbf{Proximal Policy Optimization (PPO)}, which is covered in detail in the following chapter.
-
-In procedural domains like endoscopy and surgical robotics, RL is attractive because it
-\section{Reinforcement Learning for Sequential Decision-Making}
-\label{sec:reinforcement_learning}
-
-\subsection*{Introduction}
-Reinforcement Learning (\textbf{RL}) is a paradigm of machine learning in which an agent learns to make decisions by interacting with an environment. Unlike supervised learning, which relies on labeled data, or unsupervised learning, which identifies patterns in unlabeled data, reinforcement learning operates through a process of trial and error guided by \textbf{reward signals}.
-
-This work follows the standard \textbf{Markov Decision Process} formulation and terminology
-used in modern RL literature \cite{sutton2018reinforcement}. We also use a few classic
-deep RL results, like \textbf{DQN} and \textbf{AlphaGo}, to show how far the field has come
-\cite{mnih2015dqn,silver2016alphago}.
-
-This chapter introduces the fundamental concepts of reinforcement learning, the mathematical framework of Markov Decision Processes, core solution methods, and key applications. The discussion emphasizes concepts necessary for understanding modern policy-based methods such as \textbf{Proximal Policy Optimization (PPO)}, which is covered in detail in the following chapter.
-
-In procedural domains like endoscopy and surgical robotics, RL is attractive because it
-explicitly models \textbf{sequences of actions} under uncertainty. At the same time,
-these domains are safety-critical, so training usually has to stay in simulation or rely
-on carefully controlled data instead of free exploration in the real world.
-
-\subsection{Core Concepts and Terminology}
-A reinforcement learning system comprises an \textbf{agent}, an \textbf{environment}, and their interaction. The agent observes the current state of the environment, selects and executes an action, and receives both a \textbf{reward signal} and the next state. The reward encodes the immediate desirability of the action, while the state transition allows the agent to learn the consequences of its choices.
-
-Key concepts include:
-
-\begin{itemize}
-
-\item \textbf{State ($s$):} A representation of the current configuration of the environment. States can be discrete or continuous, and may be fully or partially observable.
-
-\item \textbf{Action ($a$):} A choice the agent can make. Actions are typically drawn from a finite action space, though continuous action spaces are also common.
-
-\item \textbf{Reward ($r$):} A scalar signal indicating the immediate quality of the action taken in a given state. Rewards guide learning toward desired behaviors.
-
-\item \textbf{Policy ($\pi$):} A mapping from states to actions, either deterministic ($a = \pi(s)$) or stochastic ($a \sim \pi(\cdot|s)$). Learning a good policy is the primary objective of RL.
-
-\item \textbf{Value function ($V(s)$):} The expected cumulative future reward starting from state $s$ under a given policy. It estimates the long-term benefit of being in that state.
-
-\item \textbf{Action-value function ($Q(s,a)$):} The expected cumulative future reward for taking action $a$ in state $s$ and then following the policy thereafter.
-
-\item \textbf{Return ($G_t$):} The cumulative discounted reward from time $t$ onward: $G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots$, where $\gamma \in [0,1]$ is the discount factor.
-
-\end{itemize}
-
-\subsection{Markov Decision Process (MDP)}
-A Markov Decision Process provides the mathematical foundation for most reinforcement learning algorithms. An MDP is defined by a tuple $(S, A, P, R, \gamma)$, where:
-
-\begin{itemize}
-
-\item $S$ is the set of states.
-
-\item $A$ is the set of actions.
-
-\item $P(s'|s,a)$ is the state transition probability, giving the probability of moving to state $s'$ after taking action $a$ in state $s$.
-
-\item $R(s,a,s')$ is the reward function, specifying the immediate reward for the transition.
-
-\item $\gamma$ is the discount factor, weighting immediate rewards more heavily than distant future rewards.
-
-\end{itemize}
-
-The Markov property states that future transitions depend only on the current state and action, not on the history of prior states. This assumption simplifies analysis and enables efficient learning algorithms, though in practice many real environments are only approximately Markovian.
+In this work, RL is not just theory in a textbook. It is the idea behind an agent that must act in a messy, changing scene and still stay safe. We use modern policy methods, especially \textbf{Proximal Policy Optimization (PPO)}, because they are stable and work well with neural networks \cite{schulman2017ppo}. Classic deep RL results such as \textbf{DQN} and \textbf{AlphaGo} show how far the field has come \cite{mnih2015dqn,silver2016alphago}.
 
 \begin{figure}[h]
 \centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: Agent-Environment loop / MDP diagram}}
-\caption{Agent-environment interaction (MDP) — placeholder.}
+\fbox{\parbox[b][3.8cm][c]{0.9\linewidth}{\centering Placeholder: RL overview showing agent, environment, state, action, and reward}}
+\caption{Main RL components and feedback loop (placeholder).}
+\label{fig:rl_components}
+\end{figure}
+
+\subsection{The RL Loop}
+The RL loop is easy to remember: the agent sees a \textbf{state}, chooses an \textbf{action}, and gets a \textbf{reward}. Then the environment changes, and the next state appears. This repeats many times. The goal is not to win one step, but to collect the best total reward over time.
+
+For our project, this loop matters because the best action now may depend on what happened a few frames ago. A small move can make the next image clearer, or a wrong move can hide the lesion. RL helps the agent learn that timing matters.
+
+\begin{figure}[h]
+\centering
+\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: agent--environment loop / MDP diagram}}
+\caption{Agent--environment interaction as an MDP (placeholder).}
 \label{fig:mdp_loop}
 \end{figure}
 
-\subsection{Value-Based Methods}
-Value-based methods learn an estimate of the value function and derive the policy implicitly by selecting actions that lead to higher-value states. The value function satisfies the Bellman equation:
-
-$$V^\pi(s) = \mathbb{E}\left[r + \gamma V^\pi(s')\right]$$
-
-Key value-based algorithms include:
-
+\subsection{Key Concepts}
 \begin{itemize}
-
-\item \textbf{Q-Learning:} An off-policy algorithm that learns the optimal action-value function $Q^*(s,a)$ by iteratively applying the Bellman optimality operator. Q-learning does not require knowledge of the transition model and can learn from experience \cite{sutton2018reinforcement}.
-
-\item \textbf{SARSA (State-Action-Reward-State-Action):} An on-policy temporal difference method that updates the value function based on the action actually taken by the current policy, rather than the optimal action.
-
-\item \textbf{Temporal Difference (TD) Learning:} A family of methods that update value estimates using the difference between the current estimate and a bootstrapped target that includes a reward and the estimate at the next state \cite{sutton2018reinforcement}.
-
+	\item \textbf{State:} what the agent knows right now, such as images, scope position, or tool state.
+	\item \textbf{Action:} what the agent can do, such as move, stop, open the snare, or apply energy.
+	\item \textbf{Reward:} a number that says how good the last action was.
+	\item \textbf{Policy:} the agent's behaviour rule, usually written as \(\pi\).
+	\item \textbf{Return:} the total future reward, for example $G_t = r_t + \gamma r_{t+1} + \dots$.
+	\item \textbf{Value:} a guess of how good a state or action may be in the future.
 \end{itemize}
 
-Value-based methods work well when the action space is discrete and the state space is
-manageable, but they can struggle with continuous actions or very high-dimensional
-inputs.
+These words are small, but they carry the whole chapter. If the state is poor, the action may be poor too. If the reward is wrong, the agent may learn the wrong lesson. So the definitions are not just formalities; they shape the whole system.
 
-\subsection{Policy-Based Methods}
-Policy-based methods directly parametrize and optimize the policy $\pi_\theta(a|s)$. 
-Unlike value-based methods, they do not need to learn a value function first, which makes
-them more flexible for continuous action spaces and high-dimensional problems.
+\subsection{Markov Decision Process}
+We model the problem as a \textbf{Markov Decision Process} (MDP). An MDP has five parts: states, actions, transitions, rewards, and a discount factor. The Markov idea says that the next step depends mostly on the current state and current action, not on the full history.
 
-The policy gradient theorem provides the foundation:
+This is not a perfect description of the real world, but it is a useful one. It keeps the problem clean enough to train an agent, while still matching how procedural tasks work in practice \cite{sutton2018reinforcement}.
 
-$$\nabla_\theta J(\theta) = \mathbb{E}\left[\nabla_\theta \log \pi_\theta(a|s) Q^\pi(s,a)\right]$$
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{4pt}% padding between image and frame
+	\includegraphics[width=0.8\linewidth,trim=0 6cm 0 6cm,clip]{assets/diagram-MDP.png}%
+\caption{State transition and reward flow in an MDP.}
+\label{fig:mdp_state_transition}
+\end{figure}
 
-This result shows that the gradient of the expected return with respect to the policy parameters can be estimated using samples from the environment.
+\subsection{Value and Policy Methods}
+There are two main ways to solve an RL problem. The first is \textbf{value-based learning}. Here the agent learns how good each action is. The second is \textbf{policy-based learning}. Here the agent learns the action rule directly.
 
-Key policy-based approaches include:
+Value methods such as Q-learning are simple and useful, especially when the action space is small. Policy methods are often better for continuous control, where the agent needs to steer smoothly instead of choosing from a short list of actions. That is why this work focuses on policy methods and actor-critic ideas, especially PPO \cite{schulman2017ppo}.
 
+\begin{figure}[h]
+\centering
+\fbox{\parbox[b][3.4cm][c]{0.9\linewidth}{\centering Placeholder: value-based vs policy-based RL comparison}} 
+\caption{Two main RL families: value-based and policy-based (placeholder).}
+\label{fig:rl_taxonomy}
+\end{figure}
+
+\subsection{Why PPO Fits This Work}
+PPO is popular because it keeps training stable. It updates the policy in small steps instead of making one big jump. That is helpful when the agent works in a noisy visual setting, where a big update could make the behaviour worse very quickly.
+
+In simple terms, PPO tries to improve the agent without letting it become too adventurous at once. That is a good match for endoscopy, where we want progress, but not chaos. The policy should learn smooth and reliable behaviour, not dramatic surprises.
+
+\begin{figure}[h]
+\centering
+\fbox{\parbox[b][3.6cm][c]{0.9\linewidth}{\centering Placeholder: PPO training loop with policy, critic, and clipped update}}
+\caption{PPO training loop and clipped policy update (placeholder).}
+\label{fig:ppo_loop}
+\end{figure}
+
+\subsection{Reward Design and Safety}
+In a medical setting, reward design is a big deal. A bad reward can lead to odd behaviour. The agent may chase the score instead of the real goal. So rewards should be simple, clear, and tied to safe actions.
+
+Useful ideas include:
 \begin{itemize}
-
-\item \textbf{REINFORCE:} A simple Monte Carlo policy gradient method that uses the full return as the estimate of the action value \cite{williams1992reinforce}.
-
-\item \textbf{Actor-Critic Methods:} Combine a policy-based actor with a value-based critic. The critic learns a value function to reduce the variance of policy gradient estimates, improving sample efficiency.
-
-\item \textbf{Trust Region Methods:} Constrain policy updates to remain within a trust region around the current policy, ensuring stable learning \cite{schulman2015trpo,schulman2017ppo}.
+	\item \textbf{Reward shaping:} give small feedback during the task, not only at the end.
+	\item \textbf{Penalties:} reduce reward for unsafe moves or bad tool contact.
+	\item \textbf{Human review:} let clinicians check whether the behaviour looks sensible.
+	\item \textbf{Simulation first:} train in a virtual setting before any real-world test.
 \end{itemize}
+
+\begin{figure}[h]
+\centering
+\fbox{\parbox[b][3.2cm][c]{0.9\linewidth}{\centering Placeholder: reward design diagram showing progress reward and safety penalties}}
+\caption{Example reward design for safe RL (placeholder).}
+\label{fig:reward_design}
+\end{figure}
+
+\subsection{Exploration}
+RL also needs exploration. The agent must try new things to improve, but it should not take wild risks all the time. A small amount of exploration is good; too much is noisy; too little makes learning slow.
+
+In practice, we often use controlled exploration such as action noise or epsilon-style randomness. In safety-critical tasks, simulation is the place to explore more freely, because the agent can fail there without harming a patient.
+
+\subsection{RL in Endoscopy}
+RL is useful in endoscopy because the task is sequential and visual. The agent may need to move the scope, keep the target in view, and decide when to act. This is not a single-frame problem. It is more like a short story: one move changes the next scene, and the next scene changes the next decision.
+
+Recent work in surgical and medical robotics shows the same pattern: learning in simulation, safety constraints, and sim-to-real transfer are the big challenges \cite{qian2023arxiv,pore2022iros,corsi2023arxiv,ou2023lra,surrol2021arxiv}.
 
 \begin{table}[h]
 \centering
-\caption{Comparison of major reinforcement learning algorithm families}
-\begin{tabular}{|l|l|l|l|l|}
+\caption{Simple view of RL methods used in this chapter}
+\begin{tabular}{|l|l|l|}
 \hline
-	extbf{Algorithm} & \textbf{Type} & \textbf{On/Off} & \textbf{Action Space} & \textbf{Typical Advantage} \\ \hline
-Q-Learning & Value & Off & Discrete & Simple, model-free \\ \hline
-SARSA & Value & On & Discrete & Conservative updates \\ \hline
-REINFORCE & Policy & On & Continuous & Direct policy optimization \\ \hline
-Actor-Critic & Hybrid & On/Off & Both & Lower-variance gradients \\ \hline
-TRPO / PPO & Policy & On & Continuous/Discrete & Stable policy updates \\ \hline
+\textbf{Method} & \textbf{Main idea} & \textbf{Why it helps} \\ \hline
+Q-learning & Learn action values & Simple for discrete actions \\ \hline
+Actor-critic & Policy + critic & More stable learning \\ \hline
+PPO & Safe policy updates & Good for continuous control \\ \hline
 \end{tabular}
-\label{tab:rl_algorithms}
+\label{tab:rl_methods_short}
 \end{table}
-
-	extit{[Placeholder for Figure: Taxonomy of RL methods showing value-based vs policy-based vs actor-critic]}
-
-\subsection{Reward Design and Safety Constraints}
-In safety-critical applications, the reward function must be designed carefully.
-Poorly specified rewards can lead to unintended behaviors that maximize the numerical
-objective while violating practical constraints. Common approaches to mitigate this
-include:
-
-\begin{itemize}
-\item \textbf{Reward shaping} to provide dense feedback while preserving the final goal.
-\item \textbf{Constraints and penalties} for unsafe states or actions.
-\item \textbf{Human-in-the-loop evaluation} to validate behavior beyond scalar scores.
-\item \textbf{Training in simulation} before any real-world deployment.
-\end{itemize}
-
-\subsection{Exploration and Exploitation}
-A fundamental challenge in reinforcement learning is balancing exploration (trying new actions to discover their effects) and exploitation (performing actions known to yield high rewards). Pure exploitation can lead to suboptimal policies that become stuck in local maxima, while excessive exploration wastes samples on low-reward actions.
-
-Common exploration strategies include:
-
-\begin{itemize}
-
-\item \textbf{$\epsilon$-Greedy:} Select a random action with probability $\epsilon$ and the greedy action with probability $1-\epsilon$.
-
-\item \textbf{Boltzmann Exploration:} Select actions according to a softmax distribution over estimated values, with temperature controlling exploration level.
-
-\item \textbf{Upper Confidence Bound (UCB):} Balance exploration and exploitation by preferring actions with high estimated value and high uncertainty.
-
-\end{itemize}
-
-\subsection{Applications and Limitations}
-Reinforcement learning has achieved significant successes in game playing (Atari, Go, chess), robotics, autonomous driving, and optimization problems. Modern RL algorithms scale to high-dimensional state and action spaces and can learn complex behaviors \cite{haarnoja2018sac}.
-
-However, RL faces several challenges:
-
-\begin{itemize}
-
-\item \textbf{Sample Efficiency:} RL typically requires large numbers of environment interactions, which can be expensive or infeasible in real-world settings.
-
-\item \textbf{Reward Specification:} Defining a reward function that captures desired behavior is often difficult and can lead to unintended solutions.
-
-\item \textbf{Generalization:} Policies learned in one environment may not transfer well to new environments or variations of the original task.
-
-\item \textbf{Stability:} Training can be unstable, with performance varying significantly based on hyperparameters and random seeds.
-\end{itemize}
-
-\begin{table}[h]
-\centering
-\caption{Examples of RL application areas and typical challenges}
-\begin{tabular}{|l|l|l|l|}
-\hline
-	extbf{Domain} & \textbf{Problem} & \textbf{Algorithm} & \textbf{Challenge} \\ \hline
-Game playing & Planning/control & DQN/PPO & Sparse rewards \\ \hline
-Robotics & Manipulation & PPO/TD3 & Sample efficiency \\ \hline
-Autonomous systems & Navigation & PPO/MPC & Safety constraints \\ \hline
-Healthcare & Sequential decisions & PPO/Offline RL & Limited exploration \\ \hline
-\end{tabular}
-\label{tab:rl_applications}
-\end{table}
-	extit{[Placeholder for Figure: Learning curves comparing sample efficiency of different RL algorithms]}
-
-In the medical and surgical domains, recent reviews and case studies illustrate both
-opportunities and practical barriers for surgical RL: learning in simulation, safety
-constraints, and sim-to-real transfer are active research topics \cite{qian2023arxiv,pore2022iros,corsi2023arxiv,ou2023lra,surrol2021arxiv}.
 
 \subsection{Summary}
-Reinforcement learning gives us a clean way to learn sequential decision-making policies
-through interaction with an environment. Value-based and policy-based methods both
-matter here, but modern work often leans toward policy-based and actor-critic methods
-because they are flexible and scale better. The next chapter builds on this and introduces
-Proximal Policy Optimization (PPO), which is the main algorithm used in this work.
-matter here, but modern work often leans toward policy-based and actor-critic methods
-because they are flexible and scale better. The next chapter builds on this and introduces
-Proximal Policy Optimization (PPO), which is the main algorithm used in this work.
-\end{flushleft}
+RL gives us a clean way to teach an agent step by step. In this project, the agent must learn safe and useful actions for navigation and extraction, so we focus on policy-based methods, especially PPO. The next chapter explains PPO in more detail.
+

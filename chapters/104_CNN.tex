@@ -1,10 +1,11 @@
+\clearpage
 \section{Convolutional Neural Networks (CNN) for Endoscopic Vision}
 \label{sec:cnn}
 
 \subsection*{Introduction}
 Convolutional Neural Networks (\textbf{CNNs}) are deep learning models designed to process grid-like data, especially images. Their key idea is to learn local visual patterns through convolutional filters and to reuse the same weights across the input space. This gives CNNs strong performance on tasks that involve spatial structure.
 
-CNNs are one of the most important ideas in modern computer vision, and they are used a lot in image classification, object detection, segmentation, and medical imaging \cite{lecun1998cnn,goodfellow2016deep,litjens2017dlSurvey}.
+CNNs are one of the most important ideas in modern computer vision, and they are used a lot in image classification, feature extraction, segmentation, and medical imaging \cite{lecun1998cnn,goodfellow2016deep,litjens2017dlSurvey}.
 
 Some of the biggest milestones in CNNs are \textbf{AlexNet}, \textbf{ResNet}, and \textbf{U-Net} \cite{krizhevsky2012alexnet,he2016resnet,ronneberger2015unet}.
 
@@ -49,58 +50,57 @@ CNNs are effective because they exploit two key properties of images: local spat
 \begin{tabular}{|l|l|l|}
 \hline
 \textbf{Application} & \textbf{Input Type} & \textbf{Output} \\ \hline
-Image classification & Natural images & Class label \\ \hline
-Object detection & Images or video frames & Bounding boxes \\ \hline
+Image encoding & Natural images & Visual features \\ \hline
+Appearance modelling & Images or video frames & Local descriptors \\ \hline
 Segmentation & Medical or scene images & Pixel-wise labels \\ \hline
 OCR and document analysis & Scanned pages & Text or layout features \\ \hline
-Industrial inspection & Product images & Defect detection \\ \hline
+Industrial inspection & Product images & Defect features \\ \hline
 \end{tabular}
 \label{tab:cnn_applications}
 \end{table}
 
-\subsection{CNNs in Endoscopy: Detection and Segmentation}
-In endoscopic applications, CNNs are commonly used for polyp \textbf{detection}
-(predicting bounding boxes or candidate regions) and \textbf{segmentation} (predicting
-pixel-wise masks). These outputs can support later steps such as size estimation,
-margin awareness, and temporal tracking.
+\subsection{CNNs for Navigation and Extraction}
+In this work, CNNs are used as visual encoders for two kinds of image input: colon wall
+images and target polyp images. The goal is not to build a polyp detector. Instead, the
+CNN helps the agent understand the scene, keep the colon in view, and support the next
+action during navigation or extraction.
 
-Clinical evidence for real-time vision-based assistance has been shown in randomized
-trials of computer-aided detection systems \cite{wang2019cade,repici2020cade}.
+For navigation, CNN features can help the agent recognise folds, bends, lighting changes,
+and the current camera view. For extraction, they can help describe the polyp shape,
+position, and nearby tissue so the agent can place tools more carefully. In both cases,
+the CNN acts as a perception front-end for the decision policy.
 
-Recent multi-hospital studies also show that deep CNN models can work well for polyp
-detection and classification in clinical settings \cite{deep2023endoscopic}.
+The basic idea is simple: image input goes in, compact visual features come out, and the
+policy uses those features to choose the next action. That is the bridge between vision
+and control in this project.
 
-Clarification: the cited CNN work shows what strong perception can do in clinical
-pipelines. The experiments here do not implement those detection pipelines; instead,
-we focus on how pixel-level inputs can drive end-to-end control policies for
-navigation and snare capture.
-
-Evaluation typically uses metrics that capture both overlap quality and clinical
-priorities (e.g., high sensitivity with controlled false positives):
+Evaluation typically uses metrics that capture both feature quality and downstream
+usefulness:
 \begin{figure}[h]
 \centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: example endoscopic frame with mask overlay}}
-\caption{Example endoscopic frame (placeholder).}
+\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: colon wall and polyp image input for the agent}}
+\caption{Example colon wall and polyp image input for the agent (placeholder).}
 \label{fig:endoscopic_example}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{Common evaluation metrics for endoscopic vision models}
+\caption{Common evaluation metrics for endoscopic visual encoders}
 \begin{tabular}{|l|l|l|}
 \hline
 \textbf{Task} & \textbf{Metric} & \textbf{What It Measures} \\ \hline
-Segmentation & Dice / IoU & Mask overlap quality \\ \hline
-Detection & mAP & Detection performance across thresholds \\ \hline
-Screening support & Sensitivity & Miss rate control (false negatives) \\ \hline
+Visual encoding & Representation quality & How well features summarize the image \\ \hline
+Navigation support & Stability / latency & Real-time usefulness for control \\ \hline
+Extraction support & Robustness & How well features work under lighting and motion changes \\ \hline
 Deployment & Latency / stability & Real-time usability, reduced flicker \\ \hline
 \end{tabular}
 \label{tab:endoscopy_metrics}
 \end{table}
 
 Practical constraints include strong appearance variability, specular highlights,
-occlusions, and motion blur. These factors motivate robust training practices such as
-data augmentation and careful validation across different acquisition conditions.
+occlusions, motion blur, and changes in colon wall texture. These factors motivate
+robust training practices such as data augmentation and careful validation across
+different acquisition conditions.
 
 \subsection{Limitations}
 Despite their success, CNNs have limitations:
@@ -113,6 +113,6 @@ Despite their success, CNNs have limitations:
 
 \subsection{Summary}
 CNNs are still a foundational architecture for visual recognition tasks and are
-especially useful for endoscopic perception modules. Their outputs (detections,
-segmentations, and learned representations) are often fed into higher-level decision
-systems that work over time.
+especially useful for endoscopic perception modules. In this project, they turn images
+of the colon wall and the target polyp into useful features for the agent. Those features
+are then fed into higher-level decision systems that handle navigation and extraction.

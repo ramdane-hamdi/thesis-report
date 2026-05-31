@@ -1,70 +1,104 @@
+\clearpage
 \section{Colorectal Polyps and Endoscopic Polypectomy}
 \label{sec:polypectomy}
+\subsection{What is a Polyp?}
+A \textbf{colorectal polyp} is an abnormal growth from the lining of the colon or rectum. It can be small and flat or larger and on a stalk. The most common precancerous type is called an \textbf{adenoma}, which is a glandular polyp with a higher risk of becoming cancer over time, so it is often removed during colonoscopy even when it does not yet cause symptoms.
 
-\subsection*{Introduction}
-In this context, \textbf{polypectomy} refers to the endoscopic removal of
-\textbf{colorectal polyps} during colonoscopy. Colorectal polyps are abnormal mucosal growths
-that may be benign, precancerous (\textbf{adenomas}), or malignant. Because visual appearance
-alone cannot reliably exclude malignancy, resection and histopathological assessment are
-often recommended.
+This is why polyp size, shape, and appearance matter in practice: the endoscopist has to decide quickly whether the lesion should be removed and how much risk is involved.
 
-Beyond screening, endoscopic polypectomy is a real-time job that asks a lot from the
-operator. The clinician has to spot the lesion, judge its shape, choose a resection
-method, place the tools carefully, manage bleeding risk, and make sure the removal is
-complete. That is exactly why this topic connects so well with intelligent assistance:
-the visual input is messy, and the decisions need to stay safe.
-
-\subsection{Clinical Motivation and Procedural Workflow}
-Colonoscopy enables direct visualization of the colonic mucosa and supports both
-\textbf{detection} and \textbf{removal} of suspicious lesions. In a typical workflow, the endoscopist
-first inspects the lesion, then judges the morphology and surface pattern, chooses a
-resection method, performs the resection with proper hemostasis, retrieves the specimen,
-and finally documents the procedure and schedules follow-up when needed \cite{ferlitsch2017esge,kaltenbach2020usmstf}.
-
-From an engineering perspective, this workflow is sequential: each action (scope
-positioning, insufflation, tool deployment, snare closure, cautery settings, clipping)
-changes the visual scene and the risk profile. This motivates treating the task as a
-\textbf{closed-loop problem} rather than a single-frame recognition problem.
-
-\subsection{Polyp Morphology and Resection Strategy}
-Resection strategy depends strongly on lesion morphology. Clinically, polyps are often
-described as \textbf{pedunculated} (with a stalk) or \textbf{sessile/flat} (broad-based),
-and the estimated size guides whether simple snare resection is sufficient or whether
-more advanced mucosal resection is needed.
-
-Important practical factors include \textbf{visibility}, \textbf{access angle}, proximity to folds, and
-\textbf{bleeding risk}. These factors are difficult to capture in a single rule, which is why
-learning-based systems often model the problem through observed states and iterative
-feedback.
-
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][3.2cm][c]{0.9\linewidth}{\centering Placeholder: Types of polyps (pedunculated, sessile, flat)}}
-\caption{Polyp types (placeholder).}
-\label{fig:polyp_types}
+\setlength{\fboxsep}{4pt}% padding for frame
+% \fbox{%
+% 	\includegraphics[width=1\linewidth,trim=1cm 6cm 2cm 4cm,clip]{assets/illustration-polyp-growth2.png}%
+% }
+\fbox{%
+	\includegraphics[width=1\linewidth, clip]{assets/illustration-polyp-growth2-cropped.png}%
+}
+
+\caption{Illustration of a colorectal polyp (growth stages).}
+\label{fig:colorectal_polyp}
 \end{figure}
 
-Reported complication rates vary by setting and technique; guideline summaries provide
-useful reference ranges and risk factor discussions \cite{ferlitsch2017esge,kaltenbach2020usmstf}.
+After removal, polyps are sent for \textbf{histology} to check for cancer or high‑risk features. \textbf{Small polyps} are often removed during the same colonoscopy, while larger or complex lesions may need \textbf{advanced techniques} or referral. The choice balances \textbf{completeness} of removal and patient \textbf{safety}.
 
-\subsection{Common Resection Techniques}
-Several techniques are used in colorectal polypectomy. \textbf{Cold snare} is commonly
-used for small lesions and avoids thermal injury. \textbf{Hot snare} introduces electrocautery to support hemostasis but requires careful control.
-\textbf{Endoscopic mucosal resection (EMR)} may be used for larger sessile lesions,
-often using a submucosal injection to lift the lesion. \textbf{Endoscopic submucosal
-dissection (ESD)} targets en-bloc resection for selected lesions but is technically
-more demanding.
+Modern imaging modes such as \textbf{NBI} or simple dye techniques can show small surface patterns. These patterns help the clinician decide if a lesion looks suspicious and which removal method is best.
 
-\begin{figure}[h]
+
+\clearpage
+\subsection{What is an Endoscope?}
+An \textbf{endoscope} is a flexible tube with a camera and light source at the tip, used to visualize the interior of the gastrointestinal tract. During colonoscopy, the endoscope is inserted through the rectum and advanced through the colon, allowing the clinician to inspect the mucosa for abnormalities such as polyps. The endoscope also has channels that allow the passage of tools for biopsy or polypectomy. The endoscopist controls the movement of the scope, the camera angle, and the tools, making it a complex task that requires real-time decision-making based on visual feedback.
+
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][4cm][c]{0.9\linewidth}{\centering Placeholder: Polypectomy procedure diagram (insertion, visualization, snare placement, hemostasis)}}
-\caption{Polypectomy procedure (placeholder).}
-\label{fig:polypectomy_procedure}
+\setlength{\fboxsep}{4pt}
+\fbox{%
+	\includegraphics[width=1\linewidth,trim=2cm 6cm 6cm 5cm,clip]{assets/illustration-endoscope.png}%
+}
+\caption{Endoscope illustration (camera, light, and accessory channel).}
+\label{fig:endoscope_placeholder}
 \end{figure}
+
+A modern endoscope gives a \textbf{live video feed} and allows the operator to control \textbf{tip deflection} and the viewing angle. Important functions include \textbf{insufflation} to open the lumen, \textbf{suction} to clear fluids, and the \textbf{instrument channel} to pass snares or forceps. Good \textbf{image quality} and steady positioning make detection and safe treatment easier.
+
+\clearpage
+\subsection{What is Colonoscopy?}
+
+A \textbf{colonoscopy} is a procedure that uses a flexible tube with a camera to examine the colon. It is used for \textbf{screening}, \textbf{diagnosis} and \textbf{treatment} (for example, polyp removal). Good \textbf{bowel preparation} and careful\textbf{ navigation} are needed so the doctor can see the mucosa clearly.
+
+Main steps: \textbf{prepare}, \textbf{insert and reach the cecum}, \textbf{inspect while withdrawing}, and \textbf{treat or sample} lesions. Quality measures include \textbf{cecal intubation rate} and \textbf{adenoma detection rate}. Major risks are post-procedure bleeding and rare perforation.
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{4pt}
+\fbox{%
+	\includegraphics[width=1\linewidth,trim=1cm 0cm 2cm 0cm,clip]{assets/illustration-colonoscopy.png}%
+}
+\caption{Colonoscopy: scope view and instruments.}
+\label{fig:colonoscopy_illustration}
+\end{figure}
+A typical colonoscopy uses \textbf{light sedation} and lasts about \textbf{20--40 minutes}. If a polyp is removed, the operator may use \textbf{clips or cautery} to control bleeding. Final care and follow-up depend on \textbf{histology and lesion size}; clear written instructions are given to the patient before discharge.
+
+\clearpage
+\subsection{What is Polypectomy?}
+A \textbf{polypectomy} is the endoscopic \textbf{resection} (removal) of \textbf{colorectal polyps} during colonoscopy. Polyps may be benign, precancerous (\textbf{adenomas}), or malignant. Because appearance alone cannot exclude malignancy, \textbf{resection} and \textbf{histopathological assessment} are often recommended.
+
+A \textbf{polypectomy} is therefore a subset of \textbf{endoscopy} — procedures that use an \textbf{endoscope} to visualise and sometimes treat the gastrointestinal tract.
+
+Beyond screening, polypectomy is a \textbf{real-time} procedure that requires the operator to: \textbf{spot the lesion}, \textbf{judge its shape}, select the \textbf{resection method}, \textbf{position tools}, \textbf{manage bleeding risk}, and ensure the \textbf{removal is complete}. This is why reliable \textbf{perception} and safe \textbf{decision-making} are essential.
+
+\begin{figure}[H]
+\centering
+\fbox{
+	\includegraphics[width=1\linewidth,trim=0 5cm 0 5cm,clip]{assets/illustration-polyp-extraction.png}%
+}
+\caption{Polypectomy extraction illustration (scope tip, snare, lesion).}
+\label{fig:polypectomy_extraction}
+\end{figure}
+
+
+
+\subsection{Resection Techniques}
+Resection strategy depends on lesion morphology (for example, \textbf{pedunculated} vs \textbf{sessile/flat}) and on practical factors such as \textbf{visibility}, \textbf{access angle}, proximity to folds, and \textbf{bleeding risk}. These aspects guide the choice between simpler and more advanced cutting methods \cite{ferlitsch2017esge,ESGE2024_Polypectomy_Update}.
+
+Common techniques and when to use them:
+
+\begin{itemize}
+\item \textbf{Cold snare}: best for small lesions; it removes tissue without electrocautery and thus reduces thermal injury.
+\item \textbf{Hot snare}: uses electrocautery to cut and help haemostasis; useful for selected lesions but carries thermal risk.
+\item \textbf{Endoscopic mucosal resection (EMR)}: for larger sessile lesions; often pairs a submucosal injection with snare resection and can be done piecemeal.
+\item \textbf{Endoscopic submucosal dissection (ESD)}: enables en-bloc resection for selected complex lesions; offers better margins but is technically demanding and slower.
+\end{itemize}
+
+Recent randomized trials and pooled analyses have directly compared cold and hot snare for small polyps; these studies show different trade-offs in delayed bleeding and completeness of resection \cite{Chang2023_AnnInternMed,Liu2023_IntJColorectalDis,Abuelazm2023_JClinGastro,Niu2023_JGastroHepatol}.
+
+Choosing a technique balances \textbf{completeness} (low recurrence) against \textbf{procedural risk} (bleeding, perforation) and required operator skill. For guidance on EMR and ESD indications and technique, see ESGE guidance and ESD reviews \cite{ferlitsch2017esge,PimentelNunes2015_ESGE_ESD,ESGE2024_Polypectomy_Update}. Learning-based systems should model these trade-offs so policies can select safe, effective actions under uncertainty.
+
 
 \begin{table}[h]
 \centering
 \caption{High-level comparison of common colorectal resection techniques}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|l|l|l|}
 \hline
 \textbf{Technique} & \textbf{Typical Use} & \textbf{Key Benefit} & \textbf{Main Trade-off} \\ \hline
@@ -72,54 +106,24 @@ Cold snare & Small lesions & Lower thermal injury & May be harder on fibrotic ti
 Hot snare & Selected lesions & Hemostasis via cautery & Thermal injury risk \\ \hline
 EMR & Larger sessile lesions & Scalable resection & Piecemeal risk, recurrence monitoring \\ \hline
 ESD & Selected complex lesions & En-bloc resection & Technically demanding, longer time \\ \hline
-\end{tabular}
+\end{tabular}%
+}
 \label{tab:resection_techniques}
 \end{table}
 
-\subsection{Recovery and Follow-Up}
-Recovery after colonoscopy-based polypectomy is often rapid, but follow-up decisions
-depend on pathology and completeness of resection. Resected tissue is typically sent
-for histological analysis. Surveillance intervals and further management depend on
-\textbf{polyp type}, \textbf{size}, \textbf{number}, and \textbf{margin status}.
-This is why post-polypectomy follow-up guidelines matter so much \cite{gupta2020postpolypectomy}.
-
-\subsection{Complications, Safety, and Quality Considerations}
-While generally safe, polypectomy can lead to clinically significant complications such
-as \textbf{bleeding} and \textbf{perforation}. Risk varies with lesion size and morphology, anatomical
-location, technique, and patient factors (e.g., anticoagulation). Incomplete resection
-can lead to recurrence and the need for repeat interventions.
-
-From a quality perspective, a key challenge is that many decision points are made under
-time pressure and imperfect visibility. This motivates systems that improve visualization
-and support consistent decision-making, especially for borderline cases.
-
-\begin{table}[h]
+\subsection{Cold vs Hot snare}
+\label{sec:cold_hot_snare}
+Cold and hot snare are similar in use but different in how they cut.
+\begin{itemize}
+\item \textbf{Cold snare}: no electrocautery, lower risk of thermal injury, best for \textbf{small} polyps.
+\item \textbf{Hot snare}: uses electrocautery, can help stop bleeding but adds \textbf{thermal risk}; used for selected lesions.
+\end{itemize}
+\begin{figure}[h]
 \centering
-\caption{Common complications and example contributing factors}
-\begin{tabular}{|l|c|l|}
-\hline
-\textbf{Complication} & \textbf{Incidence} & \textbf{Risk Factors} \\ \hline
-Bleeding & 0.3--2\% & Large polyp, anticoagulation \\ \hline
-Perforation & 0.05--0.2\% & Sessile polyp location \\ \hline
-Infection & <0.1\% & Poor sterile technique \\ \hline
-Incomplete removal & 1--5\% & Poor visualization \\ \hline
-Recurrence & 5--15\% & Initial incomplete removal \\ \hline
-\end{tabular}
-\label{tab:polypectomy_risks}
-\end{table}
+\fbox{\parbox[b][3.0cm][c]{0.9\linewidth}{\centering Placeholder: cold vs hot snare diagram (snare + power source)}}
+\caption{Cold versus hot snare (placeholder).}
+\label{fig:cold_hot_snare_placeholder}
+\end{figure}
 
-\subsection{Implications for Intelligent Assistance}
-An intelligent polypectomy assistance system must address both \textbf{perception} and \textbf{control}.
-On the perception side, it should help \textbf{localize lesions}, delineate margins, and maintain
-stable tracking under motion and occlusion. On the decision side, it must support
-sequential actions such as tool positioning, timing, and safe termination conditions.
 
-These requirements motivate the learning methods reviewed in the following sections:
-deep models for vision (e.g., \textbf{CNNs}) and sequential decision-making methods (e.g., \textbf{RL} and
-\textbf{PPO}) that can be trained and validated in controlled settings before deployment.
 
-\subsection{Summary}
-Endoscopic polypectomy is a preventive intervention with a well-defined but
-safety-critical workflow. It involves sequential decisions under uncertainty, which makes
-it a strong candidate for intelligent assistance methods that combine robust perception
-with stable decision-making.
