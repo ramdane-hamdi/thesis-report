@@ -41,6 +41,7 @@
         border: 1px solid #ddd;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
         background: #fff;
+        touch-action: pan-y;
       }
       button {
         background: var(--btn-bg);
@@ -158,21 +159,36 @@
         async function renderPageToCanvas(pageNum, canvas) {
           const page = await pdfDoc.getPage(pageNum);
           const viewport = page.getViewport({ scale: 1 });
+
+          // Fit to container width (CSS) to avoid horizontal scrolling.
           const containerWidth = Math.min(
             document.documentElement.clientWidth - 24,
             1000,
           );
-          const baseScale = containerWidth / viewport.width;
-          const scale = baseScale * (scalePct / 100);
+
+          // compute CSS width (we keep CSS width <= containerWidth to avoid overflow)
+          const cssWidth = Math.min(
+            containerWidth,
+            viewport.width * (scalePct / 100),
+          );
+
+          // compute render scale based on chosen cssWidth and requested zoom
+          const scale = (cssWidth / viewport.width) * (scalePct / 100);
           const vp = page.getViewport({ scale });
 
           const dpr = window.devicePixelRatio || 1;
-          canvas.style.width = vp.width + "px";
-          canvas.style.height = vp.height + "px";
-          canvas.width = Math.floor(vp.width * dpr);
-          canvas.height = Math.floor(vp.height * dpr);
+
+          // Set CSS size to fit container (no horizontal overflow) and maintain aspect ratio
+          canvas.style.width = cssWidth + "px";
+          const cssHeight = vp.height * (cssWidth / vp.width);
+          canvas.style.height = cssHeight + "px";
+
+          // Set backing store size for crisp rendering
+          canvas.width = Math.max(1, Math.floor(cssWidth * dpr));
+          canvas.height = Math.max(1, Math.floor(cssHeight * dpr));
           const ctx = canvas.getContext("2d");
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
 
           const renderContext = { canvasContext: ctx, viewport: vp };
           await page.render(renderContext).promise;
