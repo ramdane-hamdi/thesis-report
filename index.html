@@ -31,9 +31,35 @@
         background: #fff;
         touch-action: pan-y;
       }
+      #controls {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: opacity 0.3s ease;
+      }
+      #pageInfo {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.9rem;
+        user-select: none;
+      }
     </style>
   </head>
   <body>
+    <div id="controls">
+      <span id="pageInfo">Page <span id="pageNum">1</span> / <span id="pageCount">...</span></span>
+    </div>
     <div id="viewerContainer" aria-live="polite"></div>
 
     <!-- PDF.js from CDN (pin a version in production) -->
@@ -45,7 +71,36 @@
           "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179/build/pdf.worker.min.js";
 
         let pdfDoc = null;
+        let currentPage = 1;
         const container = document.getElementById("viewerContainer");
+        const pageNumEl = document.getElementById("pageNum");
+        const pageCountEl = document.getElementById("pageCount");
+
+        function updateControls() {
+          pageNumEl.textContent = currentPage;
+        }
+
+        const visiblePages = new Map();
+        const pageTrackingObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const pageNum = parseInt(entry.target.dataset.page, 10);
+            visiblePages.set(pageNum, entry.intersectionRatio);
+          });
+          
+          let maxRatio = 0;
+          let bestPage = currentPage;
+          visiblePages.forEach((ratio, pageNum) => {
+            if (ratio > maxRatio) {
+              maxRatio = ratio;
+              bestPage = pageNum;
+            }
+          });
+          
+          if (maxRatio > 0 && bestPage !== currentPage) {
+            currentPage = bestPage;
+            updateControls();
+          }
+        }, { root: null, threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] });
 
         async function setupPages() {
           for (let i = 1; i <= pdfDoc.numPages; i++) {
@@ -78,12 +133,40 @@
 
           document
             .querySelectorAll(".pageWrapper")
-            .forEach((w) => observer.observe(w));
+            .forEach((w) => {
+              observer.observe(w);
+              pageTrackingObserver.observe(w);
+            });
         }
 
         async function renderPageToCanvas(pageNum, canvas) {
           const page = await pdfDoc.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1 });
+          
+          let autoRotation = 0;
+          try {
+            const textContent = await page.getTextContent();
+            let rot90 = 0;
+            let rot270 = 0;
+            let normal = 0;
+            for (const item of textContent.items) {
+              const strLen = item.str.trim().length;
+              if (strLen === 0) continue;
+              const [m11, m12, m21, m22] = item.transform;
+              if (Math.abs(m12) > Math.abs(m11)) {
+                if (m12 > 0) rot90 += strLen;
+                else rot270 += strLen;
+              } else {
+                normal += strLen;
+              }
+            }
+            if (rot90 > normal && rot90 > rot270) autoRotation = 90;
+            else if (rot270 > normal && rot270 > rot90) autoRotation = 270;
+          } catch(e) {
+            console.error(e);
+          }
+
+          const totalRotation = (page.rotate + autoRotation) % 360;
+          const viewport = page.getViewport({ scale: 1, rotation: totalRotation });
 
           const containerWidth = Math.min(
             document.documentElement.clientWidth - 24,
@@ -101,7 +184,7 @@
             ),
           );
           const scale = cssWidth / viewport.width;
-          const vp = page.getViewport({ scale });
+          const vp = page.getViewport({ scale, rotation: totalRotation });
 
           const dpr = window.devicePixelRatio || 1;
           canvas.style.width = cssWidth + "px";
@@ -111,16 +194,22 @@
           canvas.width = Math.max(1, Math.floor(cssWidth * dpr));
           canvas.height = Math.max(1, Math.floor(cssHeight * dpr));
           const ctx = canvas.getContext("2d");
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.scale(dpr, dpr);
+          ctx.clearRect(0, 0, cssWidth, cssHeight);
 
-          const renderContext = { canvasContext: ctx, viewport: vp };
+          const renderContext = { 
+            canvasContext: ctx, 
+            viewport: vp
+          };
           await page.render(renderContext).promise;
         }
 
         (async function () {
           try {
             pdfDoc = await pdfjsLib.getDocument(PDF_URL).promise;
+            pageCountEl.textContent = pdfDoc.numPages;
+            updateControls();
             await setupPages();
           } catch (err) {
             console.error(err);
