@@ -4,7 +4,8 @@ This repository contains the LaTeX source for the master thesis. The included `c
 
 **Prerequisites**
 
-- A TeX distribution with `pdflatex` and `bibtex` (TeX Live recommended).
+- A TeX distribution with `latexmk` and `lualatex` (TeX Live recommended).
+- `latexmk` command must be installed (`sudo apt install latexmk`).
 - Standard LaTeX packages (the class attempts to load them; install `texlive-full` if in doubt).
 - A POSIX shell to run `./compile.sh`.
 
@@ -13,10 +14,16 @@ This repository contains the LaTeX source for the master thesis. The included `c
 From the repository root:
 
 ```bash
-# default: compiles main.tex
+# incremental build (fast)
 ./compile.sh
 
-# compile a specific file (e.g. for fast local checks)
+# full clean rebuild
+./compile.sh --clean
+
+# force all passes (no incremental)
+./compile.sh --full
+
+# compile a specific file
 ./compile.sh chapters/004_general_introduction.tex
 ```
 
@@ -28,6 +35,6 @@ After a successful run the final PDF will be at:
 
 **Troubleshooting**
 
-- If `bibtex` is not found, install the appropriate TeX packages (e.g., `texlive-bibtex-extra` or `texlive-full`).
+- If `latexmk` or `lualatex` is not found, ensure your TeX distribution is correctly installed and in your PATH.
 - If compilation fails, inspect `build/compile.log` and `build/main.log` for details.
 - Missing images or files: ensure paths referenced in the source exist (`assets/` is used for logos and figures).
