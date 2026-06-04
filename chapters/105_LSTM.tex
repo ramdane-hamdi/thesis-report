@@ -1,96 +1,44 @@
 \clearpage
-\section{Temporal Modeling with Long Short-Term Memory Networks (LSTM)}
+\section{Temporal Memory with LSTMs}
 \label{sec:lstm}
 
-\subsection*{Introduction}
-Long Short-Term Memory (\textbf{LSTM}) networks are a type of recurrent neural network designed to model sequential data while reducing the vanishing gradient problem that affects standard RNNs \cite{hochreiter1997lstm}. They are especially useful when the current output depends on information from earlier time steps.
+\subsection{Why One Frame is Not Enough}
 
-LSTMs are widely used in natural language processing, time-series prediction, speech
-processing, and any other task where sequence context matters.
+When a doctor performs a colonoscopy, they do not make decisions based on a single frozen image. They watch the video, notice how the scene changes over time, and use that context to understand what is happening. For example, if the camera just passed a fold, the doctor knows that the view will open up in a moment. If the polyp was visible two seconds ago but disappeared, the doctor knows it is probably just behind the current camera angle.
 
-\subsection{Internal Mechanism}
-An LSTM cell controls information flow using gates that decide what to remember, what to forget, and what to output. The cell state acts as a memory path that can carry information across many time steps.
+An Deep RL agent that only looks at the current frame misses all of this context. It would be like trying to watch a football match by looking at one random photo every few seconds. You would not understand who is attacking, who is defending, or what just happened. That is why we need a way to give the agent a \textbf{short-term memory} so it can connect what it sees now with what it saw a few steps ago.
 
-The main gates are pretty easy to remember:
+This is where \textbf{Long Short-Term Memory} (LSTM) networks come in. They are a type of recurrent neural network designed to remember important information across several time steps and forget the rest \cite{hochreiter1997lstm}.
+
+\subsection{How LSTMs Remember What Just Happened}
+
+A normal neural network processes each input independently. It has no memory of what came before. A \textbf{recurrent neural network} (RNN) tries to fix this by passing information from one time step to the next. But standard RNNs have a big problem: they struggle to remember things from more than a few steps back because the learning signal fades away during training. This is called the \textbf{vanishing gradient problem}.
+
+LSTMs were invented specifically to solve this issue. They use a clever system of three \textbf{gates} that control the flow of information:
 
 \begin{itemize}
-\item \textbf{Forget gate:} Decides which parts of the previous memory to keep.
-\item \textbf{Input gate:} Controls which new information should be stored.
-\item \textbf{Output gate:} Determines the visible hidden state at the current step.
+\item \textbf{Forget gate:} decides which parts of the old memory to throw away. If something is no longer relevant (like a fold the camera already passed), the forget gate removes it.
+\item \textbf{Input gate:} decides which new information to store. If the agent just spotted the polyp, the input gate makes sure that information is saved.
+\item \textbf{Output gate:} decides what part of the memory to use right now for making a decision.
 \end{itemize}
 
-\begin{table}[h]
-\centering
-\caption{LSTM gates and their roles}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Gate} & \textbf{Role} & \textbf{Purpose} \\ \hline
-Forget gate & Filters old information & Removes irrelevant memory \\ \hline
-Input gate & Controls new information & Stores useful context \\ \hline
-Output gate & Exposes hidden state & Produces current output \\ \hline
-\end{tabular}
-\label{tab:lstm_gates}
-\end{table}
+The combination of these gates gives the LSTM the ability to keep useful information for many time steps and discard the rest. This makes it much better than a standard RNN for tasks where the context from a few seconds ago still matters.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][3.2cm][c]{0.9\linewidth}{\centering Placeholder: LSTM cell diagram (input, forget, output gates)}}
-\caption{LSTM cell (placeholder).}
-\label{fig:lstm_cell}
+\includegraphics[width=0.9\linewidth]{assets/diagram-lstm-generic.png}
+\caption{LSTM Generic Architecture}
+\label{fig:lstm}
 \end{figure}
 
-\subsection{Sequence Modeling Strengths}
-\begin{flushleft}
-Compared with standard feed-forward networks, LSTMs are much better for ordered data
-because they preserve temporal context. Compared with simple RNNs, they are also more
-stable during training and can capture longer dependencies.
+\subsection{Helping the Agent Keep Track During a Procedure}
 
-\begin{table}[h]
-\centering
-\caption{Common LSTM application areas}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Domain} & \textbf{Task} & \textbf{Benefit} \\ \hline
-Text processing & Language modeling & Context awareness \\ \hline
-Speech analysis & Signal interpretation & Temporal continuity \\ \hline
-Time series & Forecasting & Sequential dependency handling \\ \hline
-Healthcare & Patient monitoring & Event trend modeling \\ \hline
-Anomaly detection & Sensor streams & Pattern deviation detection \\ \hline
-\end{tabular}
-\label{tab:lstm_applications}
-\end{table}
+In our project, the LSTM sits between the CNN and the Deep RL policy. The CNN produces visual features from the current camera frame, and the LSTM receives those features along with its own memory from the previous steps. It then produces an updated hidden state that captures both what the agent sees now and what it remembers from the recent past. The Deep RL policy uses this hidden state to choose the next action.
 
-\end{flushleft}
-
-\subsection{Relevance to Endoscopic Video}
-\begin{flushleft}
-Endoscopy produces video streams where the useful information often depends on what
-happened a moment ago: lesions may be partially visible, the camera viewpoint changes
-quickly, and short-term tracking can reduce flickering predictions. In this setting,
-LSTMs can help to:
+This setup helps the agent in several concrete ways:
 
 \begin{itemize}
-	\item smooth frame-level predictions by integrating recent history;
-	\item model tool or lesion motion as a sequence;
-	\item support recognition of procedural phases (high-level temporal structure).
+\item During \textbf{navigation}, the LSTM helps the agent understand which direction the colon is curving, even when the current view is unclear. If the last few frames showed the lumen moving to the left, the agent can anticipate the turn.
+\item During \textbf{extraction}, the LSTM helps the agent track the polyp position over time, even if it briefly goes out of view. It also helps the agent remember whether the snare has already been extended or not.
+\item In both phases, the LSTM \textbf{smooths the agent's behaviour} over time, reducing sudden and erratic movements that could happen if the agent only reacted to individual frames.
 \end{itemize}
-
-In many modern pipelines, attention-based models may replace recurrent networks for
-longer contexts, but LSTMs are still a useful and lightweight baseline for temporal
-aggregation.
-\end{flushleft}
-
-\subsection{Limitations}
-\begin{flushleft}
-LSTMs are powerful, but they can be slower to train than simpler networks and may still
-struggle with very long sequences. In many recent applications, they are being
-complemented or replaced by attention-based models, but they remain very important for
-understanding recurrent sequence modeling.
-\end{flushleft}
-
-\subsection{Summary}
-\begin{flushleft}
-LSTMs provide a clean way to learn from ordered data by keeping a memory state across
-time. They also form an important bridge between classical recurrent networks and newer
-sequence modeling approaches.
-\end{flushleft}

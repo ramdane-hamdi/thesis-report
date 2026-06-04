@@ -1,79 +1,53 @@
 \clearpage
-\section{Artificial Intelligence for Endoscopic Decision Support}
-\label{sec:artificial_intelligence}
+\section{Basics of Artificial Intelligence}
+\label{sec:basics_artificial_intelligence}
 
-Artificial Intelligence (\textbf{AI}) refers to computational methods that can perform tasks
-usually associated with human intelligence, such as \textbf{perception}, \textbf{reasoning}, \textbf{learning}, and
-\textbf{decision-making}. In practice, modern AI systems in healthcare are mostly data-driven:
-they learn patterns from curated datasets and are judged with \textbf{task-specific metrics}
-\cite{goodfellow2016deep,litjens2017dlSurvey}. That's why this work uses
-\textbf{reinforcement learning (RL)} together with computer vision and temporal models: specifically,
-policy optimization methods (e.g. Proximal Policy Optimization, PPO), convolutional neural networks (CNNs)
-for visual perception, and recurrent models such as LSTM for temporal context. This combination is a natural
-fit for the sequential decision-making problem of polypectomy. We will cover the relevant AI approaches
-in more detail in the next sections, but here we give a high-level overview of how AI is used in endoscopy
-and what the main challenges are.
+\subsection{What is AI and Why Does It Matter Now}
 
+\textbf{Artificial Intelligence} (AI) is the idea of making computers do things that normally need human thinking, like recognising objects in a picture, understanding language, or making decisions in complex situations \cite{goodfellow2016deep}. It is not one single technology but a big family of methods that all share the same goal: teach machines to learn from data and improve over time.
 
-For endoscopy and polypectomy, AI is primarily used to (i) interpret endoscopic video
-streams, and (ii) support consistent decisions under time pressure. This includes
-detecting lesions, delineating margins, estimating uncertainty, and supporting
-procedure-level decisions that depend on sequential context. Randomized controlled
-trials have shown that real-time computer-aided detection can increase polyp and
-adenoma detection rates during colonoscopy \cite{wang2019cade,repici2020cade}.
-
-Simulation platforms and general RL/agent toolkits (like \textbf{Unity ML-Agents}) are often
-used to prototype interactive assistance systems and train policies in controlled
-environments \cite{juliani2018unity}.
-
-\subsection{What parts of AI concern us?}
-The AI landscape is huge, but the following approaches are the ones that matter most
-for intelligent endoscopic assistance:
-
-\begin{itemize}
-  \item \textbf{Deep Learning (DL):} neural networks such as \textbf{CNNs} for image-level
-  perception and \textbf{LSTM} for modelling temporal dependencies in video.
-  \item \textbf{Computer Vision (CV):} extracting information from images (detection,
-  segmentation, tracking) using CNNs; outputs can feed downstream decision modules.
-  \item \textbf{Reinforcement Learning (RL):} learning sequential decision policies from
-  interaction and feedback; here we use policy optimisation (PPO) to train real-time,
-  robust action policies for navigation and snare control.
-\end{itemize}
-
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: AI pipeline diagram}}
-\caption{AI pipeline: CNN perception + LSTM temporal model + PPO policy (placeholder).}
-\label{fig:ai_pipeline}
+\setlength{\fboxsep}{4pt}
+	\includegraphics[width=1\linewidth]{assets/diagram-a.i-venn.png}%
+\caption{How the main fields of AI relate to each other.}
+\label{fig:ai_venn}
 \end{figure}
 
-\subsection{AI tasks for Polypectomy}
-Our goal is to develop an agent (or several cooperating agents) that can perform two core tasks required for safe, effective polypectomy:
-\begin{itemize}
-  \item \textbf{Navigate:} guide and position the endoscope to provide a stable, well-framed view of the lesion. This includes steering the tip around folds and flexures, reducing looping, managing insufflation, maintaining an occlusion-free line of sight, and keeping the target within reach for tool deployment.
-  \item \textbf{Extract:} execute tissue resection safely and effectively. This covers precise snare placement and closure, choosing the appropriate resection method (cold snare, hot snare, EMR, or ESD), controlling energy delivery when used, managing immediate complications such as bleeding or perforation, and ensuring specimen retrieval for histology.
-\end{itemize}
+The field has been around since the 1950s, but it really took off in the last decade thanks to three things happening at the same time: much bigger \textbf{datasets}, much faster \textbf{hardware} (especially GPUs), and better \textbf{algorithms} like deep neural networks \cite{litjens2017dlSurvey}. To give an idea of how fast things are moving, the famous \textbf{AlphaGo} system by DeepMind beat the world champion in the board game Go in 2016, a task that many researchers thought was still decades away \cite{silver2016alphago}. That moment really showed the world what modern AI could do.
 
-These capabilities map directly to the perception + decision + control pipeline described above: perception (CNN) supplies lesion location and margins, temporal models (LSTM) provide context and stability across frames, and the RL policy (PPO) issues navigation and tool-control actions under safety constraints.
-
-\subsection{Constraints: Safety, Robustness, and Evaluation}
-Clinical deployment imposes constraints that strongly influence model design and
-evaluation:
+Inside the AI family, there are a few important subfields that we use in this project:
 
 \begin{itemize}
-  \item \textbf{Safety:} false negatives can be clinically costly, while false positives can
-  distract and reduce trust.
-  \item \textbf{Domain shift:} models must generalize across devices, centers, patient
-  populations, and imaging conditions.
-  \item \textbf{Latency:} assistance must be real-time and stable (avoid flickering outputs).
-  \item \textbf{Interpretability and usability:} outputs must be understandable and useful
-  during the procedure.
+\item \textbf{Machine Learning (ML):} methods that let a computer learn patterns from data without being told exactly what to look for.
+\item \textbf{Deep Learning (DL):} a part of ML that uses neural networks with many layers, and it is especially good at working with images and video.
+\item \textbf{Computer Vision (CV):} techniques for understanding what is in an image or a video, like detecting objects or tracking motion.
+\item \textbf{Deep Reinforcement Learning (Deep RL):} a way for an agent to learn by trying actions and getting feedback (rewards or penalties) from the environment.
 \end{itemize}
 
-These constraints push us toward system-level evaluation, not just per-frame accuracy,
-and they also make the link between perception and decision-making much tighter.
 
-\subsection{Summary}
-AI is the big umbrella under which both vision-based perception and sequential
-decision-making sit. The next section focuses on reinforcement learning, which is a
-very natural way to model procedural decisions.
+
+What makes AI so exciting right now is that these subfields are starting to work together. In our project, for example, we use deep learning to understand what the camera sees (that is the computer vision part), and then deep reinforcement learning to decide what to do next. This combination is what makes intelligent agents possible.
+
+\subsection{How AI is Already Used in Medicine and Endoscopy}
+
+AI is not just a research topic anymore. It is already being used in real hospitals. In radiology, AI systems help doctors read X-rays and CT scans faster. In pathology, they help analyse tissue samples. And in \textbf{endoscopy}, which is the field that interests us most, AI is making a real difference.
+
+One of the most exciting results in recent years came from clinical trials that tested \textbf{computer-aided detection} (CADe) systems during colonoscopy. These systems run in real time and highlight suspicious areas on the screen to help the doctor spot polyps. A large randomised trial by Wang et al. found that using a CADe system increased the \textbf{adenoma detection rate} from \textbf{20\,\%} to \textbf{29\,\%}, which is a big improvement \cite{wang2019cade}. Another trial by Repici et al. confirmed similar results, showing that AI-assisted colonoscopy finds more polyps without making the procedure longer \cite{repici2020cade}.
+
+These systems are mostly focused on \textbf{detection}, meaning they help the doctor see the polyp. But the next big question is: can AI also help with the \textbf{treatment} itself? That is where our project comes in.
+
+A good survey by Nazarian et al. looked at many studies on AI for polyp detection and characterisation, and found that deep learning models can reach a \textbf{sensitivity above 90\,\%} in detecting colorectal polyps from endoscopic images \cite{nazarian2021jmir}. That means the technology is already quite reliable for spotting lesions. But actually removing them safely is a very different challenge.
+
+\subsection{What Our Agent Needs to Do: Navigate and Extract}
+
+In this project, we are not building a polyp detector. Instead, we are building an agent that can \textbf{act} inside a simulated colon. The agent has two main jobs:
+
+\begin{itemize}
+\item \textbf{Navigate:} the agent must guide the endoscope tip through the colon, avoid hitting the walls, keep a clear view, and reach the area where the polyp is located. This is like driving through a narrow, winding tunnel where the walls are soft and the lighting keeps changing.
+\item \textbf{Extract:} once the agent is close enough to the polyp, it needs to use a snare tool to grab and remove it. This means extending the snare, positioning it around the polyp, and closing it at the right moment without damaging the surrounding tissue.
+\end{itemize}
+
+Both tasks are \textbf{sequential}, which means each action affects what happens next. A bad move now can make the next step much harder. That is exactly the kind of problem where deep reinforcement learning works well, because the agent learns to think ahead and not just react to the current frame.
+
+The agent uses a \textbf{CNN} to understand what the camera sees, an \textbf{LSTM} to remember what happened a few steps ago, and \textbf{PPO} (a deep reinforcement learning algorithm) to decide what to do next. We will explain each of these in the following sections, starting with deep reinforcement learning.

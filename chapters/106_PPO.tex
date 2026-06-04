@@ -2,200 +2,74 @@
 \section{Proximal Policy Optimization (PPO)}
 \label{sec:ppo}
 
-\subsection*{Introduction}
-Proximal Policy Optimization (PPO) is a state-of-the-art policy gradient algorithm that balances sample efficiency, implementation simplicity, and training stability. Introduced by OpenAI in 2017, PPO has become one of the most widely used algorithms in modern reinforcement learning due to its empirical performance across diverse domains and its robustness to hyperparameter choices.
+\subsection{The Problem with Big Updates}
 
-The canonical PPO formulation and clipped objective are described by Schulman et al. \cite{schulman2017ppo}.
+In deep reinforcement learning, the agent improves by updating its policy after collecting experience from the environment. But there is a tricky problem: if the update is too big, the policy can change so much that it starts making terrible decisions. This is a bit like a student who learns one good trick and then overuses it everywhere, even where it does not apply. The agent's performance can collapse overnight.
 
-This chapter explains why PPO became so popular, what actually makes it work, and how it compares with earlier policy gradient methods. It helps to already know the basics of policy gradients from the previous chapter.
+Early policy gradient methods like \textbf{REINFORCE} suffered from this exact issue \cite{williams1992reinforce}. They had high variance, meaning the learning signal was very noisy, and a single bad update could undo hours of training. To fix this, researchers came up with \textbf{Trust Region Policy Optimization} (TRPO), which adds a mathematical constraint to make sure each update stays small and safe \cite{schulman2015trpo}. The idea is to keep the new policy ``close'' to the old one, measured by a quantity called the \textbf{KL divergence}.
 
-PPO is especially popular in simulation-based robotics toolchains because it gives a practical trade-off: stable updates without the heavy implementation cost of strict trust-region solvers. That makes it a good fit for iterative experiments where the environment, observation space, and reward design keep changing.
+TRPO works well in theory, but it is complicated to implement and slow to run because it needs second-order optimisation (computing the Hessian matrix). That is where PPO comes in.
 
-\subsection{Motivation: Trust Region Policy Optimization}
-Early policy gradient methods suffered from instability due to large and destructive policy updates. If the policy changes too drastically in a single update, the value estimates become stale and learning diverges. Trust Region Policy Optimization (TRPO) addressed this by constraining policy updates to remain within a small trust region \cite{schulman2015trpo}:
+\subsection{How PPO Keeps Learning Stable with Clipping}
 
-$$\text{maximize} \quad \mathbb{E}\left[\frac{\pi_\theta(a|s)}{\pi_{\theta_\text{old}}(a|s)} \hat{A}_t\right]$$
-$$\text{subject to} \quad \mathbb{E}\left[\text{KL}\left(\pi_{\theta_\text{old}}(\cdot|s), \pi_\theta(\cdot|s)\right)\right] \leq \delta$$
+\textbf{Proximal Policy Optimization} (PPO) was introduced by Schulman et al. at OpenAI in 2017, and it quickly became one of the most popular Deep RL algorithms in the world \cite{schulman2017ppo}. The reason is simple: PPO gives you most of the stability benefits of TRPO, but with a much simpler implementation.
 
-where $\hat{A}_t$ is the advantage estimate and $\delta$ is the trust region radius.
+The core idea is to use a \textbf{clipped objective function}. Instead of adding a hard mathematical constraint like TRPO does, PPO clips the policy update so it cannot go too far. Here is how it works:
 
-While effective, TRPO is complex to implement and computationally expensive. PPO simplifies this approach while retaining the key benefit of controlled policy updates.
+The algorithm computes a \textbf{probability ratio} $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$, which tells us how much the new policy differs from the old one for a given action. If this ratio stays close to 1, the update is small. If it gets too far from 1, PPO clips it back. The objective function is:
 
-\subsection{The PPO-Clip Objective}
-PPO replaces the hard KL divergence constraint with a soft penalty implemented via a clipping mechanism. The clipped objective is:
+$$L^{\text{CLIP}}(\theta) = \mathbb{E}\left[\min\left(r_t(\theta) \hat{A}_t,\; \text{clip}(r_t(\theta),\; 1-\epsilon,\; 1+\epsilon)\; \hat{A}_t\right)\right]$$
 
-$$L^{\text{CLIP}}(\theta) = \mathbb{E}\left[\min\left(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t\right)\right]$$
+where $\hat{A}_t$ is the \textbf{advantage estimate} (how much better this action was compared to the average) and $\epsilon$ is the clipping range, usually set to \textbf{0.1 or 0.2}. The $\min$ function makes sure that the agent cannot benefit from making the ratio too large in either direction.
 
-where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$ is the probability ratio, and $\epsilon$ (typically $0.1$ to $0.2$) is the clipping range.
+In simple terms: PPO says ``improve, but do not go crazy.'' If the update would change the policy too much, PPO automatically limits it. This is what makes training so stable compared to older methods.
 
-The clipping mechanism prevents the probability ratio from moving too far from $1$:
-
-\begin{itemize}
-
-\item If the advantage is positive and the ratio exceeds $1 + \epsilon$, the objective becomes constant, removing incentive for further increase.
-
-\item If the advantage is negative and the ratio falls below $1 - \epsilon$, the objective plateaus, preventing excessive reduction.
-
-\item If the ratio stays within the range $[1-\epsilon, 1+\epsilon]$, the update is unclipped and proceeds normally.
-
-\end{itemize}
-
-This design automatically adapts the step size: large advantages tolerate larger steps, while small advantages keep updates conservative.
-
-\subsection{Actor-Critic Architecture}
-PPO uses an actor-critic architecture combining a policy (actor) and a value function (critic):
-
-\begin{itemize}
-
-\item \textbf{Actor:} Parametrized by $\theta$, outputs the policy $\pi_\theta(a|s)$. Updated using the clipped policy gradient objective.
-
-\item \textbf{Critic:} Parametrized by $\phi$, outputs the value estimate $V_\phi(s)$. Updated to minimize the mean squared error between predicted and target returns.
-
-\end{itemize}
-
-The critic provides advantage estimates:
-
-$$\hat{A}_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
-
-A good value function estimate is crucial for reducing the variance of policy gradient estimates while maintaining low bias.
-
-In practice, many PPO implementations share a common network trunk with separate policy and value heads, allowing efficient use of learned representations.
-
-\subsection{Algorithm and Implementation Details}
-PPO operates on batches of trajectory data collected by running the current policy in the environment. The typical training loop is:
-
-\begin{enumerate}
-
-\item \textbf{Collect Experience:} Run the policy for $N$ timesteps (or $M$ episodes), recording states, actions, rewards, and log probabilities.
-
-\item \textbf{Compute Advantages:} Use the critic to estimate advantages, typically with Generalized Advantage Estimation (GAE) for variance reduction \cite{schulman2016gae}:
-$$\hat{A}_t = \sum_{l=0}^{T-t-1} (\gamma \lambda)^l \left(r_{t+l} + \gamma V_\phi(s_{t+l+1}) - V_\phi(s_{t+l})\right)$$
-where $\lambda \in [0,1]$ controls the bias-variance tradeoff.
-
-\item \textbf{Update Policy and Value Function:} Perform multiple gradient update passes (epochs) over the collected data, updating both the actor and critic. Data is typically split into minibatches.
-
-\item \textbf{Repeat:} Collect new data and repeat until convergence.
-
-\end{enumerate}
-
-Key implementation considerations:
-
-\begin{itemize}
-
-\item PPO typically uses first-order optimization (e.g., Adam) rather than second-order methods \cite{kingma2014adam}.
-
-\item Value function loss can be combined with policy loss: $L(\theta,\phi) = L^{\text{CLIP}}(\theta) + c_1 L^{\text{VF}}(\phi) + c_2 H(\pi_\theta)$, where $H$ is entropy regularization.
-
-\item Learning rates are often scheduled to decay over training.
-
-\item Gradient clipping prevents exploding gradients.
-
-\begin{table}[h]
+\begin{figure}[H]
 \centering
-\caption{Key PPO hyperparameters and typical values}
-\begin{tabular}{|l|l|l|}
+\includegraphics[width=0.8\linewidth]{assets/diagram-ppo-generic.png}
+\caption{PPO Generic Architecture}
+\label{fig:ppo_generic}
+\end{figure}
+
+\subsection{The Actor-Critic Setup}
+
+PPO uses an \textbf{actor-critic} architecture, which means it has two components working together:
+
+\begin{itemize}
+\item The \textbf{Actor} is the policy network. It takes the current state as input and outputs a probability distribution over possible actions. This is the part that actually decides what to do.
+\item The \textbf{Critic} is the value network. It takes the same state as input and outputs a single number: an estimate of how much total reward the agent can expect from this state onwards. This is used to compute the advantage $\hat{A}_t$.
+\end{itemize}
+
+The advantage is calculated using \textbf{Generalized Advantage Estimation} (GAE), which combines multiple steps of rewards and value estimates to get a signal that is both low-variance and reasonably accurate \cite{schulman2016gae}:
+
+$$\hat{A}_t = \sum_{l=0}^{T-t-1} (\gamma \lambda)^l \left(r_{t+l} + \gamma V_\phi(s_{t+l+1}) - V_\phi(s_{t+l})\right)$$
+
+In many implementations, including ours, the actor and critic share the same neural network backbone (the CNN and LSTM layers) and only split at the final output heads. This means the visual features learned by the CNN are used by both the policy and the value function, which is more efficient.
+
+The training loop looks like this: the agent collects a batch of experience by interacting with the environment, then uses that batch to update both the actor and the critic over several passes (called \textbf{epochs}). After the update, it throws away the old data and collects a fresh batch. This makes PPO an \textbf{on-policy} algorithm, which means it always learns from data generated by its current policy.
+
+\begin{table}[H]
+\centering
+\caption{Key PPO hyperparameters and their typical values}
+\begin{tabular}{|L{5cm}C{4.5cm}R{5cm}|}
 \hline
-	extbf{Hyperparameter} & \textbf{Range} & \textbf{Effect} \\ \hline
-Clipping range ($\epsilon$) & 0.1--0.3 & Controls step size \\ \hline
-Discount factor ($\gamma$) & 0.95--0.99 & Future reward weight \\ \hline
-GAE $\lambda$ & 0.9--0.99 & Bias-variance tradeoff \\ \hline
-Learning rate & $10^{-3}$ to $10^{-5}$ & Optimization step size \\ \hline
-Batch size & 64--4096 & Gradient quality vs memory \\ \hline
-Epochs per update & 3--10 & Gradient update passes \\ \hline
-Entropy coeff. & 0--0.01 & Exploration bonus \\ \hline
+\textbf{Hyperparameter} & \textbf{Typical range} & \textbf{What it controls} \\ \hline
+Clipping range ($\epsilon$) & 0.1 to 0.2 & How much the policy can change per update \\ \hline
+Discount factor ($\gamma$) & 0.95 to 0.99 & How much the agent cares about future rewards \\ \hline
+GAE lambda ($\lambda$) & 0.9 to 0.99 & Balance between bias and variance \\ \hline
+Learning rate & $10^{-4}$ to $10^{-3}$ & Speed of gradient updates \\ \hline
+Epochs per update & 3 to 10 & How many passes over each batch \\ \hline
+Entropy coefficient & 0.0 to 0.01 & Encourages exploration \\ \hline
 \end{tabular}
 \label{tab:ppo_hyperparams}
 \end{table}
 
-	extit{[Placeholder for Figure: PPO training algorithm flowchart]}
+\subsection{Why PPO is a Good Fit for Our Simulation}
 
-\subsection{Advantages Over Prior Methods}
-PPO offers several advantages that have made it a common choice for many applications:
+We chose PPO for this project for several practical reasons. First, it is \textbf{stable}. Endoscopy is a task with noisy visual input (reflections, motion blur, changing lighting), and PPO handles that noise well because it does not overreact to any single batch of data. Second, it is \textbf{simple to implement}. The clipped objective is just a few lines of code, and excellent open-source libraries like \textbf{Stable Baselines3} provide ready-to-use PPO implementations. Third, it works well with \textbf{continuous actions}, which is important because our agent needs to output smooth, precise movements rather than choosing from a small set of discrete options.
 
-\begin{itemize}
+PPO has also proven itself in many related domains. It is used to train robotic arms in simulation \cite{schulman2017ppo}, to fine-tune large language models with human feedback (the famous RLHF pipeline), and to control agents in complex video games. In surgical robotics, several recent papers have used PPO as their main training algorithm with good results \cite{qian2023arxiv,pore2022iros}.
 
-\item \textbf{Simplicity:} The clipped objective is easy to implement and understand, requiring only a few lines of code.
+Finally, PPO pairs well with the rest of our architecture. The CNN extracts visual features, the LSTM adds temporal context, and PPO uses both to learn a policy that improves over time. The clipping mechanism makes sure that even when the simulation produces unexpected situations (a sudden camera movement, an unusual polyp position), the learning process does not break down.
 
-\item \textbf{Sample Efficiency:} By reusing data across multiple gradient steps, PPO requires fewer environment interactions than on-policy methods like REINFORCE.
-
-\item \textbf{Stability:} The clipping mechanism and adaptive learning provide robust training across diverse tasks and hyperparameters.
-
-\item \textbf{Scalability:} PPO scales well to high-dimensional state and action spaces and has been successfully applied to continuous control and large language models.
-
-\item \textbf{Robustness:} PPO is less sensitive to hyperparameter tuning than TRPO or earlier policy gradients.
-
-\end{itemize}
-
-\subsection{Applications and Performance}
-PPO has achieved state-of-the-art results across numerous domains:
-
-\begin{itemize}
-
-\item \textbf{Robotics:} Continuous control tasks such as locomotion, manipulation, and navigation.
-
-\item \textbf{Games:} Video games (Atari, Dota 2) and simulated environments.
-
-\item \textbf{Large Language Models:} RLHF (Reinforcement Learning from Human Feedback) training for language model fine-tuning uses PPO variants.
-
-\item \textbf{Autonomous Systems:} Vehicle control and navigation tasks.
-
-\end{itemize}
-
-	extit{[Placeholder for Table: Performance Comparison of PPO against TRPO, A3C, DDPG, and other RL algorithms]}
-
-	extit{[Placeholder for Figure: Example PPO learning curves on standard benchmarks (e.g., MuJoCo continuous control environments)]}
-
-\begin{table}[h]
-\centering
-\caption{PPO vs. competing policy gradient algorithms}
-\begin{tabular}{|l|l|l|l|}
-\hline
-	extbf{Algorithm} & \textbf{Sample Efficiency} & \textbf{Stability} & \textbf{Ease of Use} \\ \hline
-PPO & High & Very High & Very Easy \\ \hline
-TRPO & High & High & Difficult \\ \hline
-A3C & Medium & Medium & Moderate \\ \hline
-DDPG & Medium & Low & Moderate \\ \hline
-SAC & High & High & Moderate \\ \hline
-REINFORCE & Low & Low & Easy \\ \hline
-\end{tabular}
-\label{tab:ppo_comparison}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{PPO performance on benchmark environments}
-\begin{tabular}{|l|c|l|}
-\hline
-	extbf{Benchmark} & \textbf{Final Performance} & \textbf{Convergence Time} \\ \hline
-MuJoCo Walker2d & $\sim$5000 & 1--2M steps \\ \hline
-MuJoCo HalfCheetah & $\sim$5000 & 1--2M steps \\ \hline
-Atari (avg.) & 1500\% baseline & 2--10M steps \\ \hline
-Robotics (success) & $>$95\% & 5--20M steps \\ \hline
-\end{tabular}
-\label{tab:ppo_benchmarks}
-\end{table}
-
-	extit{[Placeholder for Figure: PPO learning curves on MuJoCo continuous control tasks]}
-
-	extit{[Placeholder for Figure: Visual examples of PPO applications (robot locomotion, game playing, etc.)]}
-
-\subsection{Limitations and Open Questions}
-Despite its success, PPO has limitations:
-
-\begin{itemize}
-
-\item \textbf{Off-Policy Learning:} PPO is on-policy and discards old data. Extensions for off-policy learning have been developed but remain less stable.
-
-\item \textbf{Value Function Bootstrapping:} Reliance on value function estimates can propagate errors, especially early in training.
-
-\item \textbf{Hyperparameter Sensitivity:} While more robust than some methods, performance can still depend significantly on choices like clipping range $\epsilon$ and discount factor $\gamma$.
-
-\item \textbf{Exploration:} PPO relies on entropy regularization for exploration; more sophisticated exploration strategies are an active research area.
-
-\end{itemize}
-
-\subsection{Summary}
-Proximal Policy Optimization is one of the reasons policy-gradient methods became much more practical. It mixes the stability ideas from trust-region methods with a simple clipped objective, so it works well in many simulation-based control problems.
-
-Here, PPO is useful because it gives a stable baseline for learning sequential decision policies in controlled experiments. When it is paired with perception modules like CNN-based visual encoders and with careful reward design, it supports iterative development and evaluation before any more serious deployment step.
-\end{flushleft}
+In the Contributions chapter, we will show the exact PPO configuration we used, the reward curves during training, and how the agent's behaviour improved over time.

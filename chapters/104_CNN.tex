@@ -1,118 +1,45 @@
 \clearpage
-\section{Convolutional Neural Networks (CNN) for Endoscopic Vision}
+\section{Computer Vision with CNNs}
 \label{sec:cnn}
 
-\subsection*{Introduction}
-Convolutional Neural Networks (\textbf{CNNs}) are deep learning models designed to process grid-like data, especially images. Their key idea is to learn local visual patterns through convolutional filters and to reuse the same weights across the input space. This gives CNNs strong performance on tasks that involve spatial structure.
+\subsection{How a CNN Reads an Image}
 
-CNNs are one of the most important ideas in modern computer vision, and they are used a lot in image classification, feature extraction, segmentation, and medical imaging \cite{lecun1998cnn,goodfellow2016deep,litjens2017dlSurvey}.
+A \textbf{Convolutional Neural Network} (CNN) is a type of neural network that is designed to work with images. The basic idea is quite clever: instead of looking at every single pixel separately, the CNN slides small filters across the image to detect patterns like edges, textures, and shapes. These filters start simple (detecting lines and corners in the first layers) and become more complex deeper in the network (detecting whole objects or structures) \cite{lecun1998cnn}.
 
-Some of the biggest milestones in CNNs are \textbf{AlexNet}, \textbf{ResNet}, and \textbf{U-Net} \cite{krizhevsky2012alexnet,he2016resnet,ronneberger2015unet}.
+The name ``convolutional'' comes from the mathematical operation used to apply these filters. What makes CNNs so efficient is that the same filter is reused across the entire image. This is called \textbf{weight sharing}, and it means the network does not need a separate set of parameters for every pixel. That is why CNNs can handle large images without needing billions of parameters.
 
-\subsection{Core Building Blocks}
-The typical CNN pipeline consists of convolution layers, activation functions, pooling layers, and one or more fully connected layers at the end. Each part serves a distinct purpose:
+A typical CNN has a few types of layers that work together:
 
 \begin{itemize}
-\item \textbf{Convolution:} Extracts local features such as edges, textures, and shapes.
-\item \textbf{Activation:} Adds non-linearity, commonly using ReLU.
-\item \textbf{Pooling:} Reduces spatial size and improves robustness to small translations.
-\item \textbf{Dense Layers:} Combine extracted features to produce final predictions.
+\item \textbf{Convolution layers:} these apply the filters and extract features from the image.
+\item \textbf{Activation layers (ReLU):} these add non-linearity, which lets the network learn complex patterns instead of just straight lines.
+\item \textbf{Pooling layers:} these shrink the feature maps to make the network faster and more robust to small shifts in the image.
+\item \textbf{Fully connected layers:} at the end, these combine all the extracted features to produce a final output, like a classification or a set of visual features for another system to use.
 \end{itemize}
 
-\begin{table}[h]
-\centering
-\caption{Main components of a CNN}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Component} & \textbf{Function} & \textbf{Effect} \\ \hline
-Convolution layer & Feature extraction & Detects local patterns \\ \hline
-ReLU activation & Non-linearity & Improves expressive power \\ \hline
-Pooling layer & Downsampling & Reduces feature map size \\ \hline
-Flatten layer & Reshaping & Connects to dense layers \\ \hline
-Fully connected layer & Classification/regression & Produces final output \\ \hline
-\end{tabular}
-\label{tab:cnn_components}
-\end{table}
+CNNs have been behind many of the biggest breakthroughs in computer vision. \textbf{AlexNet} won the ImageNet competition in 2012 and started the deep learning revolution in vision \cite{krizhevsky2012alexnet}. A few years later, \textbf{ResNet} showed that networks with over 100 layers could be trained successfully by using skip connections \cite{he2016resnet}. In medical imaging, \textbf{U-Net} became the go-to architecture for tasks like segmenting organs and lesions in scans \cite{ronneberger2015unet}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: CNN architecture diagram (conv → pool → FC)}}
-\caption{CNN architecture (placeholder).}
-\label{fig:cnn_arch}
+\includegraphics[width=0.9\linewidth]{assets/diagram-cnn-generic.png}
+\caption{How a typical CNN processes an image through convolution, and pooling layers.}
+\label{fig:cnn_architecture}
 \end{figure}
 
-\subsection{Why CNNs Work Well for Vision Tasks}
-CNNs are effective because they exploit two key properties of images: local spatial correlation and translation consistency. Instead of connecting every input pixel to every hidden unit, CNNs focus on local receptive fields and share filters across the image. This reduces the number of parameters and improves generalization.
+\subsection{Why CNNs Are Good for Endoscopic Video}
 
-\begin{table}[h]
-\centering
-\caption{Typical CNN applications}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Application} & \textbf{Input Type} & \textbf{Output} \\ \hline
-Image encoding & Natural images & Visual features \\ \hline
-Appearance modelling & Images or video frames & Local descriptors \\ \hline
-Segmentation & Medical or scene images & Pixel-wise labels \\ \hline
-OCR and document analysis & Scanned pages & Text or layout features \\ \hline
-Industrial inspection & Product images & Defect features \\ \hline
-\end{tabular}
-\label{tab:cnn_applications}
-\end{table}
+Endoscopic images are not easy for computers to work with. The lighting changes all the time, there are bright reflections on wet surfaces, the camera moves quickly and sometimes blurs the image, and the colon wall can look very different from one patient to another. On top of that, polyps can be quite small and hard to tell apart from normal folds in the tissue.
 
-\subsection{CNNs for Navigation and Extraction}
-In this work, CNNs are used as visual encoders for two kinds of image input: colon wall
-images and target polyp images. The goal is not to build a polyp detector. Instead, the
-CNN helps the agent understand the scene, keep the colon in view, and support the next
-action during navigation or extraction.
+Despite all these challenges, CNNs have shown impressive results in endoscopy. A large meta-analysis by Nazarian et al. found that deep learning models can detect colorectal polyps with a \textbf{sensitivity above 90\,\%} \cite{nazarian2021jmir}. Multiple clinical trials have confirmed that adding a CNN-based detection system to the colonoscopy workflow actually helps doctors find more polyps \cite{wang2019cade,repici2020cade}.
 
-For navigation, CNN features can help the agent recognise folds, bends, lighting changes,
-and the current camera view. For extraction, they can help describe the polyp shape,
-position, and nearby tissue so the agent can place tools more carefully. In both cases,
-the CNN acts as a perception front-end for the decision policy.
+What makes CNNs well suited for this task is their ability to learn visual features that are robust to all the noise and variation mentioned above. With enough training data and good augmentation techniques (like randomly changing brightness, adding blur, or flipping images), a CNN can learn to focus on the important patterns and ignore distractions like reflections or motion blur.
 
-The basic idea is simple: image input goes in, compact visual features come out, and the
-policy uses those features to choose the next action. That is the bridge between vision
-and control in this project.
+In our project, the CNN is not used as a standalone detector. Instead, it acts as a \textbf{visual encoder} that turns the raw camera image into a compact set of features. These features are then passed to the Deep RL agent so it can understand the scene and decide what to do next.
 
-Evaluation typically uses metrics that capture both feature quality and downstream
-usefulness:
-\begin{figure}[h]
-\centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: colon wall and polyp image input for the agent}}
-\caption{Example colon wall and polyp image input for the agent (placeholder).}
-\label{fig:endoscopic_example}
-\end{figure}
+\subsection{What Our Agent Sees: Colon Walls and Polyp Targets}
 
-\begin{table}[h]
-\centering
-\caption{Common evaluation metrics for endoscopic visual encoders}
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Task} & \textbf{Metric} & \textbf{What It Measures} \\ \hline
-Visual encoding & Representation quality & How well features summarize the image \\ \hline
-Navigation support & Stability / latency & Real-time usefulness for control \\ \hline
-Extraction support & Robustness & How well features work under lighting and motion changes \\ \hline
-Deployment & Latency / stability & Real-time usability, reduced flicker \\ \hline
-\end{tabular}
-\label{tab:endoscopy_metrics}
-\end{table}
+The agent in our simulation receives two types of visual input. The first is the \textbf{main camera view}, which shows the colon wall, the lumen (the open space inside the colon), and any polyps that might be visible. This is similar to what a real endoscopist sees on the screen during a procedure. The second input can include additional information like depth or tool position, depending on the task phase.
 
-Practical constraints include strong appearance variability, specular highlights,
-occlusions, motion blur, and changes in colon wall texture. These factors motivate
-robust training practices such as data augmentation and careful validation across
-different acquisition conditions.
+For the navigation phase, the CNN needs to help the agent understand the shape of the tunnel ahead. Is the colon bending left or right? Is there an obstacle? Is the view clear or blocked by fluid? For the extraction phase, the CNN needs to help the agent see where the polyp is relative to the snare tool, how far away it is, and whether the snare is in the right position to close.
 
-\subsection{Limitations}
-Despite their success, CNNs have limitations:
-
-\begin{itemize}
-\item They require large annotated datasets for strong performance.
-\item They are less natural for long-range temporal dependencies than sequence models.
-\item Very deep networks can be expensive to train and deploy.
-\end{itemize}
-
-\subsection{Summary}
-CNNs are still a foundational architecture for visual recognition tasks and are
-especially useful for endoscopic perception modules. In this project, they turn images
-of the colon wall and the target polyp into useful features for the agent. Those features
-are then fed into higher-level decision systems that handle navigation and extraction.
+The important point is that the CNN does not need to be perfect. It does not need to classify the polyp type or measure its exact size. It just needs to produce features that are \textbf{good enough} for the Deep RL agent to make reasonable decisions. This is a more forgiving task than pure detection, and it means we can use a relatively simple CNN architecture without sacrificing too much performance.

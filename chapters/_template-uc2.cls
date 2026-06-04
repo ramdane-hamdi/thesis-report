@@ -32,16 +32,17 @@
 %----------------------------------------------------
 % Dependencies
 %----------------------------------------------------
-\RequirePackage[utf8]{inputenc}
-\RequirePackage[T1]{fontenc}
-\RequirePackage[english]{babel}
+\RequirePackage{fontspec}
 
 \RequirePackage{graphicx} 
 \RequirePackage{amssymb,amsmath,amsfonts}
 \RequirePackage{color}
 \RequirePackage[table]{xcolor}
+\RequirePackage{tabularx}
 \RequirePackage{xifthen}
 \RequirePackage{acronym}
+
+
 
 % Margins
 \RequirePackage{geometry}
@@ -54,7 +55,7 @@
 %-----------------------------------------------------
 % Font
 %-----------------------------------------------------
-\RequirePackage{newpxtext} 
+\setmainfont{TeX Gyre Pagella}  % XeLaTeX equivalent of newpxtext
 
 %-----------------------------------------------------
 % Links
@@ -111,6 +112,7 @@
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}\ifnumequal{\rownum}{1}{\bfseries\color{white}}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}\ifnumequal{\rownum}{1}{\bfseries\color{white}}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}\ifnumequal{\rownum}{1}{\bfseries\color{white}}}m{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
 \setlength\extrarowheight{3pt}
 \RequirePackage{multicol}
@@ -199,9 +201,9 @@
 		{\small\bfseries\countryEn}\\
 		{\small\bfseries\ministryEn}\\
 		\vspace*{.5cm}
-		\includegraphics[width=1.8cm]{assets/logo-uc2-dark} \hspace{1.2cm}
-		\includegraphics[width=1.8cm]{assets/logo-ntic} \hspace{1.2cm}
-		\includegraphics[width=1.8cm]{assets/logo-incubator}\\
+		\includegraphics[width=1.8cm]{assets/uni-logo-uc2-dark} \hspace{1.2cm}
+		\includegraphics[width=1.8cm]{assets/uni-logo-ntic} \hspace{1.2cm}
+		\includegraphics[width=1.8cm]{assets/uni-logo-incubator}\\
 		\vspace*{.3cm}
 		\Large
 		\textsc{\color{primaryDark}\bfseries\universityLongEn}\\
@@ -252,6 +254,33 @@
 		\begin{flushleft}
 }{
 		\end{flushleft}
+	\end{addmargin}
+}
+
+\newenvironment{abstractAr}{
+	\begin{addmargin}[1cm]{1cm}
+		\vskip .35cm
+		\begin{center}
+			\textarabic{\textbf{ملخص}}
+		\end{center}
+		\vspace*{-.6cm}
+		\begin{Arabic}
+		\begin{flushleft}
+}{
+		\end{flushleft}
+		\end{Arabic}
+	\end{addmargin}
+}
+
+\newenvironment{keywordsAr}{
+	\vspace*{-.2cm}
+	\begin{addmargin}[1cm]{1cm}
+	\begin{Arabic}
+	\begin{flushleft}
+		\textarabic{\textbf{الكلمات المفتاحية:}}
+}{
+	\end{flushleft}
+	\end{Arabic}
 	\end{addmargin}
 }
 
@@ -343,3 +372,19 @@
 % Bibliography
 %-------------------------------------------------------
 \RequirePackage[numbers,square,sort]{natbib}
+
+%-------------------------------------------------------
+% Packages that users commonly load in preamble
+% (moved here so they load BEFORE polyglossia/bidi)
+%-------------------------------------------------------
+\RequirePackage{subcaption}
+\RequirePackage{booktabs}
+\RequirePackage{float}
+
+%-------------------------------------------------------
+% Polyglossia + Arabic (MUST be last — bidi requirement)
+%-------------------------------------------------------
+\RequirePackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{arabic}
+\newfontfamily\arabicfont[Script=Arabic, Scale=1.1]{Amiri}

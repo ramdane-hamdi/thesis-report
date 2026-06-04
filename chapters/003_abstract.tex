@@ -1,66 +1,67 @@
 %% =============================================================================
-%% ABSTRACT (English + French)
-%% The detailed abstract text is commented out; a short placeholder is shown.
+%% ABSTRACT (English + French + Arabic)
 %% =============================================================================
 
-% \chapter*{Abstract}
-% \addcontentsline{toc}{chapter}{Abstract}
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Abstract}
 
+\begin{center}
+\textbf{\Large Abstract}
+\end{center}
+\vspace{0.2cm}
+{\large
 
-% Original English abstract (kept commented for future use)
-% \clearpage
-% 
-% \begin{center}
-% \small\textbf{Abstract}
-% \end{center}
-% \begin{flushleft}
-% This work looks at a two-phase reinforcement learning system for endoscope
-% navigation and snare capture in a Unity simulation. The important point is that the
-% project does not try to detect polyps directly. Instead, it trains vision-only agents
-% to move through a colon-like environment and then perform a capture task on a
-% predefined polyp object.
-% 
-% The work is split into two parts because the full problem is easier to study that way.
-% In Phase 1, the agent learns how to steer the endoscope tip while forward motion is
-% scripted. In Phase 2, the agent learns how to extend, rotate, and close a snare so it
-% can reach the target object safely. Both phases use PPO, a convolutional visual
-% encoder, and memory to keep track of short-term context.
-% 
-% The document also explains the design choices behind the simulation, the reward
-% functions, the evaluation setup, and the limits of this approach. The goal is to show
-% how reinforcement learning can be used for procedural control in a clean simulated
-% environment before any real-world step is considered.
-% 
-% \noindent\\textbf{Keywords:} endoscopy, reinforcement learning, PPO, Unity, simulation, snare capture
-% \end{flushleft}
-% 
-% \clearpage
-% 
-% \begin{center}
-% \small\textbf{R\'esum\'e}
-% \end{center}
-% \begin{flushleft}
-% Ce m\'emoire pr\'esente un syst\`eme en deux phases bas\'e sur l'apprentissage par
-% renforcement pour la navigation endoscopique et la capture avec une anse dans une
-% simulation Unity. Le point important est que le projet ne fait pas de d\'etection de
-% polypes. Il apprend plut\^ot \`a des agents visuels \`a se d\'eplacer dans un environnement
-% de type colon et \`a r\'ealiser ensuite une t\^ache de capture sur un objet polype
-% pr\'e-d\'efini.
-% 
-% Le travail est divis\'e en deux phases pour garder le probl\`eme plus simple. Dans la
-% Phase 1, l'agent apprend \`a orienter l'extr\'emit\'e de l'endoscope pendant que la pouss\'ee
-% avant est script\'ee. Dans la Phase 2, l'agent apprend \`a d\'eployer, faire tourner et
-% fermer une anse pour atteindre la cible sans actions inutiles. Les deux phases utilisent
-% PPO, un encodeur visuel convolutionnel et une m\'emoire courte pour mieux suivre le
-% contexte.
-% 
-% Le m\'emoire explique aussi les choix de simulation, les fonctions de r\'ecompense, le
-% protocole d'\'evaluation et les limites de la m\'ethode. L'objectif est de montrer comment
-% l'apprentissage par renforcement peut aider pour le contr\^ole proc\'edural dans un
-% environnement simul\'e avant toute utilisation r\'eelle.
-% 
-% \noindent\textbf{Mots-cl\'es:} endoscopie, apprentissage par renforcement, PPO, Unity, simulation, capture par anse
-% \end{flushleft}
-% 
-% \clearpage
+\indent Colorectal cancer is a massive global problem, causing roughly 10\% of all cancer cases. The most common and optimal fix is Spotting and snipping suspicious polyps early. But navigating a 2,000 cm\textsuperscript{2} colon with a delicate endoscope is insanely hard. It actually requires two coordinated doctors, relying entirely on their split-second decisions and steady hands under intense pressure.
 
+\indent Instead of building super expensive robots, we took a wild, software-first approach! We created a semi-autonomous agent to do the heavy lifting in a hyper-realistic virtual colon. To keep things manageable, we split the challenge: one agent steers the endoscope tip through the pink tunnels (colon), and once a polyp is spotted, a second agent takes over to delicately snap a wire snare around it. Both use Deep Reinforcement Learning (PPO), Convolutional Neural Networks (CNN), and an LSTM memory core so they don't get lost.
+
+\indent It turns out polypectomy isn't just basic image recognition; it's a super complex, sequential decision game! By giving our AI rewards for good moves and penalties for crashing, they learned to perfectly balance preserving healthy tissue with making precise cuts. Our unique dual-sphere proxy proved that these vision-only agents can navigate and capture polyps under realistic, noisy conditions.
+
+\indent In short, we proved that Deep Reinforcement Learning can safely automate insanely complex surgical maneuvers in a virtual world. We've laid down a solid, exciting foundation for adaptive systems that can assist doctors in visually chaotic environments, bringing us one step closer to intelligent operating rooms!
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} colorectal cancer, deep reinforcement learning, PPO, CNN, virtual simulation, polypectomy, snare capture
+}
+
+\clearpage
+\begin{center}
+\textbf{\Large R\'esum\'e}
+\end{center}
+\vspace{0.2cm}
+{\large
+
+\indent Le cancer colorectal cause environ 10 \% des cas de cancer mondiaux. La meilleure solution reste la détection et la résection précoce des polypes. Cependant, naviguer dans un côlon de 2 000 cm\textsuperscript{2} avec un endoscope délicat est un défi technique majeur. Cette procédure nécessite généralement deux médecins coordonnés, reposant sur leur précision et rapidité sous une pression intense.
+
+\indent Plutôt que de développer des robots coûteux, nous avons privilégié une approche logicielle. Nous avons créé un agent semi-autonome pour accomplir le gros du travail dans un environnement virtuel hyper-réaliste. Pour gérer la complexité, nous avons divisé le défi : un agent dirige l'embout de l'endoscope à travers les tunnels roses (côlon), et une fois un polype repéré, un deuxième agent prend le relais pour refermer délicatement une anse métallique autour de lui. Les deux utilisent l'Apprentissage par Renforcement Profond (PPO), des Réseaux de Neurones Convolutifs (CNN) et une mémoire LSTM pour ne pas se perdre.
+
+\indent La polypectomie s'avère être un problème décisionnel séquentiel complexe. En entraînant nos agents par renforcement, ils ont appris à équilibrer la précision de la coupe avec la préservation des tissus sains. Notre modèle montre que des agents basés uniquement sur la vision peuvent naviguer et réussir des interventions sous des conditions de bruit réalistes.
+
+\indent En somme, nous démontrons que l'apprentissage profond permet d'automatiser des manœuvres chirurgicales complexes en toute sécurité dans un cadre virtuel. Cela ouvre la voie à des systèmes adaptatifs capables d'assister les médecins dans des environnements visuellement chaotiques, vers des blocs opératoires plus intelligents.
+
+\vspace{0.5cm}
+\noindent\textbf{Mots-cl\'es:} cancer colorectal, apprentissage par renforcement profond, PPO, CNN, simulation virtuelle, polypectomie, capture par anse
+}
+
+\clearpage
+\begin{Arabic}
+\begin{center}
+\textbf{\Large ملخص}
+\end{center}
+\vspace{0.2cm}
+{\large
+
+\indent يُعد سرطان القولون والمستقيم صداعاً عالمياً هائلاً، حيث يتسبب في حوالي \textenglish{10\%} من جميع حالات السرطان. أفضل حل؟ اكتشاف الأورام الحميدة المشبوهة وقطعها مبكراً. لكن توجيه منظار دقيق داخل قولون بمساحة \textenglish{2000} سم\textsuperscript{2} أمر بالغ الصعوبة! يتطلب الأمر عادةً طبيبين منسقين، حيث يعتمد كلياً على قراراتهما السريعة وأيديهما الثابتة تحت ضغط شديد.
+
+\indent بدلاً من بناء روبوتات باهظة الثمن، اتخذنا نهجاً برمجياً جريئاً! قمنا بإنشاء وكيل شبه مستقل للقيام بالعمل الشاق داخل قولون افتراضي فائق الواقعية. ولإبقاء الأمور تحت السيطرة، قمنا بتقسيم التحدي: حيث يقوم الوكيل الأول بتوجيه طرف المنظار عبر الأنفاق الوردية (القولون)، وبمجرد اكتشاف ورم، يتولى وكيل ثانٍ مهمة إغلاق حلقة سلكية برفق حوله. كلاهما يستخدم التعلم المعزز العميق (\textenglish{PPO}) والشبكات العصبية التلافيفية (\textenglish{CNN}) مع ذاكرة (\textenglish{LSTM}) حتى لا يضيعا.
+
+\indent اتضح أن استئصال السليلة ليس مجرد تعرف أساسي على الصور؛ بل هو لعبة قرارات متسلسلة في غاية التعقيد! من خلال إعطاء الذكاء الاصطناعي الخاص بنا مكافآت على الحركات الجيدة وعقوبات عند الاصطدام، تعلموا الموازنة بشكل مثالي بين الحفاظ على الأنسجة السليمة وإجراء عمليات قطع دقيقة. أثبت نظام الوكيل مزدوج الكرات الفريد لدينا أن هؤلاء الوكلاء المعتمدين على الرؤية فقط يمكنهم التنقل والتقاط الأورام الحميدة في ظل ظروف واقعية صاخبة.
+
+\indent باختصار، أثبتنا أن التعلم المعزز العميق يمكنه أتمتة مناورات جراحية معقدة للغاية بأمان في عالم افتراضي. لقد أرسينا أساساً قوياً ومثيراً لأنظمة تكيفية يمكنها مساعدة الأطباء في بيئات فوضوية بصرياً، مما يقربنا خطوة نحو غرف العمليات الذكية!
+
+\vspace{0.5cm}
+\noindent\textbf{الكلمات المفتاحية:} سرطان القولون والمستقيم، التعلم المعزز العميق، \textenglish{PPO}، \textenglish{CNN}، محاكاة افتراضية، استئصال السليلة، الالتقاط بالحلقة السلكية.
+}
+\end{Arabic}
+
+\clearpage

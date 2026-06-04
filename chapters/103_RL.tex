@@ -1,121 +1,98 @@
 \clearpage
-\section{Reinforcement Learning for Sequential Decision-Making}
+\section{Deep Reinforcement Learning}
 \label{sec:reinforcement_learning}
 
-\subsection*{Introduction}
-Reinforcement Learning (\textbf{RL}) is a way for an agent to learn by trying actions and getting feedback. If the action helps, the agent gets a better reward. If not, it learns and tries again. That simple loop makes RL a good fit for tasks that happen step by step, like moving an endoscope, keeping the view stable, or controlling a snare \cite{sutton2018reinforcement}.
+\subsection{How an Agent Learns from Trial and Error}
 
-In this work, RL is not just theory in a textbook. It is the idea behind an agent that must act in a messy, changing scene and still stay safe. We use modern policy methods, especially \textbf{Proximal Policy Optimization (PPO)}, because they are stable and work well with neural networks \cite{schulman2017ppo}. Classic deep RL results such as \textbf{DQN} and \textbf{AlphaGo} show how far the field has come \cite{mnih2015dqn,silver2016alphago}.
+\textbf{Deep Reinforcement Learning} (Deep RL) is a way of teaching a computer to make good decisions by letting it try things and learn from the results. It is different from other types of machine learning because the agent is not given the right answer. Instead, it gets a \textbf{reward} when it does something good and a \textbf{penalty} when it does something bad. Over time, it figures out which actions lead to the best outcomes \cite{sutton2018reinforcement}.
 
-\begin{figure}[h]
-\centering
-\fbox{\parbox[b][3.8cm][c]{0.9\linewidth}{\centering Placeholder: RL overview showing agent, environment, state, action, and reward}}
-\caption{Main RL components and feedback loop (placeholder).}
-\label{fig:rl_components}
-\end{figure}
+The basic idea is surprisingly simple. Imagine you are learning to ride a bike. Nobody gives you a manual with every move written down. You just try, fall, adjust, and try again. After a while, you learn to balance without even thinking about it. Deep RL works in a similar way, except the ``bike'' is a simulated environment and the ``rider'' is a software agent.
 
-\subsection{The RL Loop}
-The RL loop is easy to remember: the agent sees a \textbf{state}, chooses an \textbf{action}, and gets a \textbf{reward}. Then the environment changes, and the next state appears. This repeats many times. The goal is not to win one step, but to collect the best total reward over time.
+What makes Deep RL really powerful is that it can handle problems where the best action depends on the situation. There is no single correct move. The right choice at one moment might be the wrong choice a second later. This makes Deep RL a natural fit for tasks like endoscopy, where the scene keeps changing and the agent has to adapt in real time.
 
-For our project, this loop matters because the best action now may depend on what happened a few frames ago. A small move can make the next image clearer, or a wrong move can hide the lesion. RL helps the agent learn that timing matters.
+Some of the most famous examples of Deep RL include \textbf{DQN}, which learned to play Atari games at a superhuman level just by watching the screen \cite{mnih2015dqn}, and \textbf{AlphaGo}, which beat the world champion at Go \cite{silver2016alphago}. These results showed that Deep RL can solve problems that were considered way too hard just a few years before.
 
-\begin{figure}[h]
-\centering
-\fbox{\parbox[b][3.5cm][c]{0.9\linewidth}{\centering Placeholder: agent--environment loop / MDP diagram}}
-\caption{Agent--environment interaction as an MDP (placeholder).}
-\label{fig:mdp_loop}
-\end{figure}
 
-\subsection{Key Concepts}
+\subsection{States, Actions, Rewards and the MDP}
+
+To train an Deep RL agent properly, we need to describe the problem in a clear and formal way. The standard framework for this is called a \textbf{Markov Decision Process} (MDP). An MDP has five parts:
+
 \begin{itemize}
-	\item \textbf{State:} what the agent knows right now, such as images, scope position, or tool state.
-	\item \textbf{Action:} what the agent can do, such as move, stop, open the snare, or apply energy.
-	\item \textbf{Reward:} a number that says how good the last action was.
-	\item \textbf{Policy:} the agent's behaviour rule, usually written as \(\pi\).
-	\item \textbf{Return:} the total future reward, for example $G_t = r_t + \gamma r_{t+1} + \dots$.
-	\item \textbf{Value:} a guess of how good a state or action may be in the future.
+\item \textbf{State ($s$):} what the agent can observe right now. In our case, this is the image from the endoscope camera plus any extra information like tool position.
+\item \textbf{Action ($a$):} what the agent can do. For navigation, this could be moving the tip up, down, left or right. For extraction, it could be extending or closing the snare.
+\item \textbf{Reward ($r$):} a number that tells the agent how good the last action was. A positive reward means things are going well, a negative reward means something went wrong.
+\item \textbf{Transition:} the rules that decide what happens next. After the agent takes an action, the environment moves to a new state.
+\item \textbf{Discount factor ($\gamma$):} a number between 0 and 1 that controls how much the agent cares about future rewards versus immediate ones.
 \end{itemize}
 
-These words are small, but they carry the whole chapter. If the state is poor, the action may be poor too. If the reward is wrong, the agent may learn the wrong lesson. So the definitions are not just formalities; they shape the whole system.
-
-\subsection{Markov Decision Process}
-We model the problem as a \textbf{Markov Decision Process} (MDP). An MDP has five parts: states, actions, transitions, rewards, and a discount factor. The Markov idea says that the next step depends mostly on the current state and current action, not on the full history.
-
-This is not a perfect description of the real world, but it is a useful one. It keeps the problem clean enough to train an agent, while still matching how procedural tasks work in practice \cite{sutton2018reinforcement}.
+The ``Markov'' part means that the next state depends only on the current state and the current action, not on the entire history. This is a simplification, but it works well in practice for many problems. When we add an LSTM to the agent later, we give it a short memory to handle cases where context from a few steps back is important \cite{sutton2018reinforcement}.
 
 \begin{figure}[H]
 \centering
-\setlength{\fboxsep}{4pt}% padding between image and frame
-	\includegraphics[width=0.8\linewidth,trim=0 6cm 0 6cm,clip]{assets/diagram-MDP.png}%
+\setlength{\fboxsep}{4pt}
+\includegraphics[width=0.8\linewidth,trim=0 6cm 0 6cm,clip]{assets/diagram-MDP.png}%
 \caption{State transition and reward flow in an MDP.}
 \label{fig:mdp_state_transition}
 \end{figure}
 
-\subsection{Value and Policy Methods}
-There are two main ways to solve an RL problem. The first is \textbf{value-based learning}. Here the agent learns how good each action is. The second is \textbf{policy-based learning}. Here the agent learns the action rule directly.
+The agent's goal is to find a \textbf{policy} ($\pi$), which is basically a rule that says: given this state, do this action. A good policy is one that leads to high \textbf{total reward} over time, not just a high reward on one single step. The total future reward from a state is called the \textbf{return}, and it is usually written as:
 
-Value methods such as Q-learning are simple and useful, especially when the action space is small. Policy methods are often better for continuous control, where the agent needs to steer smoothly instead of choosing from a short list of actions. That is why this work focuses on policy methods and actor-critic ideas, especially PPO \cite{schulman2017ppo}.
+$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots$$
 
-\begin{figure}[h]
+
+\subsection{Value Methods vs Policy Methods}
+
+There are two main ways to solve an Deep RL problem, and it is useful to understand the difference.
+
+The first approach is called \textbf{value-based learning}. Here, the agent learns a \textbf{value function} that estimates how good each state or action is. The most famous example is \textbf{Q-learning}, where the agent learns a table (or a neural network) that scores every possible action in every possible state. Then it just picks the action with the highest score. This works great when the number of possible actions is small, like in simple grid worlds or Atari games \cite{mnih2015dqn}.
+
+\begin{figure}[H]
 \centering
-\fbox{\parbox[b][3.4cm][c]{0.9\linewidth}{\centering Placeholder: value-based vs policy-based RL comparison}} 
-\caption{Two main RL families: value-based and policy-based (placeholder).}
-\label{fig:rl_taxonomy}
+\setlength{\fboxsep}{4pt}
+\includegraphics[width=1\linewidth]{assets/diagram-q-table.png}%
+\caption{Q-Learning and the Q-table.}
+\label{fig:qlearning}
 \end{figure}
 
-\subsection{Why PPO Fits This Work}
-PPO is popular because it keeps training stable. It updates the policy in small steps instead of making one big jump. That is helpful when the agent works in a noisy visual setting, where a big update could make the behaviour worse very quickly.
+The second approach is called \textbf{policy-based learning}. Here, the agent learns the action rule directly, without bothering to estimate values first. The policy is usually a neural network that takes a state as input and outputs probabilities for each action. This approach is often better for \textbf{continuous control}, where the agent needs to output smooth movements instead of choosing from a short list.
 
-In simple terms, PPO tries to improve the agent without letting it become too adventurous at once. That is a good match for endoscopy, where we want progress, but not chaos. The policy should learn smooth and reliable behaviour, not dramatic surprises.
+In practice, the best results often come from combining both ideas. This is called the \textbf{actor-critic} approach: the ``actor'' is the policy that chooses actions, and the ``critic'' is a value function that judges how good those actions are. The critic helps reduce the noise in the learning signal, which makes training more stable. PPO, the algorithm we use in this project, is an actor-critic method \cite{schulman2017ppo}.
 
-\begin{figure}[h]
+\begin{table}[H]
 \centering
-\fbox{\parbox[b][3.6cm][c]{0.9\linewidth}{\centering Placeholder: PPO training loop with policy, critic, and clipped update}}
-\caption{PPO training loop and clipped policy update (placeholder).}
-\label{fig:ppo_loop}
-\end{figure}
-
-\subsection{Reward Design and Safety}
-In a medical setting, reward design is a big deal. A bad reward can lead to odd behaviour. The agent may chase the score instead of the real goal. So rewards should be simple, clear, and tied to safe actions.
-
-Useful ideas include:
-\begin{itemize}
-	\item \textbf{Reward shaping:} give small feedback during the task, not only at the end.
-	\item \textbf{Penalties:} reduce reward for unsafe moves or bad tool contact.
-	\item \textbf{Human review:} let clinicians check whether the behaviour looks sensible.
-	\item \textbf{Simulation first:} train in a virtual setting before any real-world test.
-\end{itemize}
-
-\begin{figure}[h]
-\centering
-\fbox{\parbox[b][3.2cm][c]{0.9\linewidth}{\centering Placeholder: reward design diagram showing progress reward and safety penalties}}
-\caption{Example reward design for safe RL (placeholder).}
-\label{fig:reward_design}
-\end{figure}
-
-\subsection{Exploration}
-RL also needs exploration. The agent must try new things to improve, but it should not take wild risks all the time. A small amount of exploration is good; too much is noisy; too little makes learning slow.
-
-In practice, we often use controlled exploration such as action noise or epsilon-style randomness. In safety-critical tasks, simulation is the place to explore more freely, because the agent can fail there without harming a patient.
-
-\subsection{RL in Endoscopy}
-RL is useful in endoscopy because the task is sequential and visual. The agent may need to move the scope, keep the target in view, and decide when to act. This is not a single-frame problem. It is more like a short story: one move changes the next scene, and the next scene changes the next decision.
-
-Recent work in surgical and medical robotics shows the same pattern: learning in simulation, safety constraints, and sim-to-real transfer are the big challenges \cite{qian2023arxiv,pore2022iros,corsi2023arxiv,ou2023lra,surrol2021arxiv}.
-
-\begin{table}[h]
-\centering
-\caption{Simple view of RL methods used in this chapter}
-\begin{tabular}{|l|l|l|}
+\caption{Comparison of the main Deep RL approaches}
+\begin{tabular}{|L{4cm}C{5cm}R{5.5cm}|}
 \hline
-\textbf{Method} & \textbf{Main idea} & \textbf{Why it helps} \\ \hline
-Q-learning & Learn action values & Simple for discrete actions \\ \hline
-Actor-critic & Policy + critic & More stable learning \\ \hline
-PPO & Safe policy updates & Good for continuous control \\ \hline
+\textbf{Approach} & \textbf{What it learns} & \textbf{Best for} \\ \hline
+Value-based (Q-learning) & How good each action is & Small, discrete action spaces \\ \hline
+Policy-based (REINFORCE) & The action rule directly & Continuous control \\ \hline
+Actor-Critic (PPO, A3C) & Both policy and values & Complex tasks with stability needs \\ \hline
 \end{tabular}
-\label{tab:rl_methods_short}
+\label{tab:rl_approaches}
 \end{table}
 
-\subsection{Summary}
-RL gives us a clean way to teach an agent step by step. In this project, the agent must learn safe and useful actions for navigation and extraction, so we focus on policy-based methods, especially PPO. The next chapter explains PPO in more detail.
+\subsection{Reward Design: Why Getting the Reward Wrong Can Be Dangerous}
 
+The reward function is probably the most important part of any Deep RL system, and also the trickiest to get right. If the reward is designed well, the agent will learn useful and safe behaviour. If the reward is designed badly, the agent can learn very strange or even dangerous things.
+
+This problem is sometimes called \textbf{reward hacking}. The agent finds a way to get a high score without actually doing what you wanted. For example, if you reward an endoscopy agent only for ``reaching the polyp quickly,'' it might learn to crash through the colon wall because that is the shortest path. Obviously, that would be terrible in a real procedure.
+
+That is why in medical applications, reward design has to be very careful. Some useful strategies include:
+
+\begin{itemize}
+\item \textbf{Reward shaping:} giving small intermediate rewards along the way, not just at the end. For example, a small reward for keeping the polyp in view, another for reducing distance to the target.
+\item \textbf{Safety penalties:} subtracting reward when the agent does something dangerous, like touching the colon wall too hard or moving the snare too fast.
+\item \textbf{Curriculum learning:} starting with an easy version of the task and making it harder over time, so the agent does not get overwhelmed early on.
+\item \textbf{Simulation first:} always training in a virtual environment before even thinking about real hardware. This way the agent can make mistakes safely \cite{sutton2018reinforcement}.
+\end{itemize}
+
+
+In our project, the reward function is designed to balance two things: \textbf{progress} (getting closer to the goal) and \textbf{safety} (not causing damage). We will describe the exact reward design in the Contributions chapter.
+
+\subsection{Deep RL in Medical Robotics and Endoscopy}
+
+Deep RL is starting to be used in medical robotics, and the results so far are very promising. The main idea is always the same: train the agent in \textbf{simulation} first, then carefully test it on real hardware. This is called \textbf{sim-to-real transfer}, and it is one of the biggest challenges in the field.
+
+Recent work by Pore et al. showed that an Deep RL agent can learn to navigate a virtual colon using only camera images as input \cite{pore2022iros}. Another study by Corsi et al. added safety constraints to the Deep RL training process, making sure the agent avoids dangerous actions even during exploration \cite{corsi2023arxiv}. In surgical robotics more generally, Ou and Tavakoli demonstrated that Deep RL agents trained in simulation can successfully transfer to a real da Vinci robot for tissue manipulation tasks \cite{ou2023lra}.
+
+For our project, we use \textbf{Unity} as the simulation platform \cite{juliani2018unity} and \textbf{PPO} as the learning algorithm. The environment is designed to look and behave like a simplified colon, with a target polyp that the agent must reach and extract. We will describe this setup in detail in the Contributions chapter.
