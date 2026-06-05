@@ -104,6 +104,8 @@ That last point is crucial - by randomizing which polyp is active each episode, 
 \subsection{Training Hyperparameters}
 Because Phase 2 requires incredibly delicate, localized movements compared to Phase 1's long-distance driving, we drastically changed the PPO hyperparameters. The batch size drops to \textbf{256} and the buffer to \textbf{2048}, so the agent updates its brain much more frequently based on recent, short interactions with the polyp. We also increased the \textbf{entropy bonus ($\beta$) to 0.01} with a linear schedule to encourage more exploration early on. Training runs for \textbf{1 million steps} with checkpoints saved every 200,000 steps.
 
+Crucially, this phase introduces an \textbf{Intrinsic Curiosity Module (ICM)} to combat the extreme scarcity of the final capture reward. Because successfully looping the polyp stalk requires a highly specific sequence of geometric alignments, a purely random policy would almost never discover it. The \textbf{ICM} solves this by generating an \textbf{intrinsic reward signal} whenever the agent encounters novel visual states or unpredictable physics interactions. This artificially incentivizes the agent to actively \textbf{manipulate the snare} and explore the polyp's surface, effectively bootstrapping the learning process before any true surgical milestones are reached. We set the \textbf{curiosity strength to 0.02}, providing just enough intrinsic motivation to break the initial learning plateau without overpowering the core extrinsic surgical objectives. This delicate balance of \textbf{exploration versus exploitation} is paramount for mastering complex, multi-step manipulation tasks in sparse-reward environments.
+
 \begin{table}[H]
 \centering
 \caption{Phase 2: PPO Training Hyperparameters}
@@ -143,6 +145,7 @@ Curiosity Hidden Units & 64 \\
 
 By combining the multi-branch action space, the layered breadcrumb reward system, the curiosity-driven exploration, and the precise move-then-verify collision engine, our Phase 2 agent learns to perform a genuinely complex medical manipulation task entirely from pixel observations. It learns to approach, position, rotate, and close the snare around the polyp stalk - all without a single hard-coded rule or explicit coordinate input!
 
+\clearpage
 \subsection{Training Results \& The ``Hacker'' Agent}
 Phase 2 proved to be significantly harder to train than Phase 1. To ease the learning curve, we utilized \textbf{transfer learning} across three distinct sub-phases:
 \begin{itemize}

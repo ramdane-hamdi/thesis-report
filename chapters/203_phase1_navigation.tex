@@ -182,4 +182,6 @@ Eventually, we pivoted to a \textbf{single-agent training pipeline}. This let us
 \label{fig:nav_dashboard}
 \end{figure}
 
+Analyzing the telemetry reveals two distinct learning phases. For the first two million steps, the policy remained highly volatile. The agent frequently triggered massive penalty values by slamming the endoscope tip into the mucosal walls, evidenced by sharp, erratic dips in the cumulative reward graph. However, right around the 2.5-million step threshold, a critical paradigm shift occurred. The \textbf{Proximal Policy Optimization (PPO)} algorithm finally mapped the correlation between localized specular highlights and impending structural collisions. From that point onward, the reward curve smoothed out dramatically, charting a steady upward climb as the agent traded aggressive forward momentum for cautious, calculated angulation. This definitive stabilization proved that the neural network had successfully internalized the geometry of the colon, marking the successful completion of Phase 1.
+
 \clearpage

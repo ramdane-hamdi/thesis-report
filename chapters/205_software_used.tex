@@ -23,6 +23,8 @@ JavaScript/HTML/CSS & Reveal.js \& PDF.js for Documentation and Project presenta
 \end{tabular}
 \end{table}
 
+Integrating \textbf{deep reinforcement learning} with Unity forces us to confront the \textbf{``Two-Language Problem.''} The stack physically separates the high-speed simulation in \textbf{C\#} from the vectorized tensor operations in \textbf{Python}. Unity's C\# backend rigorously computes spatial collision physics and snare kinematics at hundreds of frames per second. Concurrently, Python manages the learning algorithm, pushing states through \textbf{PyTorch} to update the neural policy. Bridging these two environments requires flawless \textbf{inter-process communication (IPC)}. We rely on \textbf{gRPC} protocols and \textbf{shared memory buffers} to maintain a high-frequency telemetry pipeline. Python fires motor actions across the bridge, while Unity instantly replies with rendered pixel arrays and reward scalars. Managing this fragile socket connection without desynchronizing the RL loop proved to be one of the project's most severe engineering bottlenecks.
+
 
 \clearpage
 \subsection{Used Tools}

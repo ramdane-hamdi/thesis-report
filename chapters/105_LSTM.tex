@@ -43,4 +43,4 @@ This setup helps the agent in several concrete ways:
 \item In both phases, the LSTM \textbf{smooths the agent's behaviour} over time, reducing sudden and erratic movements that could happen if the agent only reacted to individual frames.
 \end{itemize}
 
-Without this recurrent memory, the agent would suffer from \textbf{partial observability}---a condition where a single image does not contain enough information to make a safe decision. By sustaining a continuous temporal context, the LSTM essentially bridges the gap between isolated camera snapshots and the continuous, dynamic reality of a clinical endoscopy, ensuring the procedure remains smooth and safe despite temporary visual occlusions.
+Without this recurrent memory, the agent would suffer from \textbf{partial observability}. This basically means that just looking at a single image doesn't give you enough clues to make a safe choice. By sustaining a continuous temporal context, the LSTM essentially bridges the gap between isolated camera snapshots and the continuous, dynamic reality of a clinical endoscopy, ensuring the procedure remains smooth and safe despite temporary visual occlusions.
