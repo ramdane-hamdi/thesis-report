@@ -1,0 +1,43 @@
+name: Build LaTeX Document
+
+on:
+  push:
+    branches:
+      - main
+    # Only run if LaTeX-related files have changed
+    paths:
+      - '**/*.tex'
+      - '**/*.bib'
+      - '**/*.cls'
+      - '**/*.sty'
+      - 'compile.sh'
+      - 'assets/**'
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    # Need write permissions to commit the generated PDF back to the repository
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history so auto-commit can work properly
+          fetch-depth: 0
+          
+      - name: Install LaTeX packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y latexmk texlive-xetex texlive-luatex texlive-science texlive-bibtex-extra texlive-publishers texlive-fonts-extra texlive-lang-arabic
+          
+      - name: Compile Document
+        # The script creates main.pdf in the root directory
+        run: bash ./compile.sh
+        
+      - name: Commit compiled PDF
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: Auto-compile LaTeX to PDF [skip ci]"
+          file_pattern: "main.pdf"
