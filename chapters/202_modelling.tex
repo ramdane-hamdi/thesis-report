@@ -1,8 +1,16 @@
 \clearpage
+% ==============================================================================
+% ==============================================================================
+%                      SIMULATION ENVIRONMENT MODELING
+% ==============================================================================
+% ==============================================================================
 \section{Simulation Environment Modeling}
 
 Before an AI agent can learn a medical procedure, it needs a believable virtual world to practice in. Since this is a deep reinforcement learning project and not a Hollywood movie, our 3D models must strike a tricky balance: realistic enough to provide useful visual features, but simple enough to run at high speeds without crashing the physics engine. Here, we break down the four main puzzle pieces: the endoscope, snare, colon, and polyp.
 
+% ==============================================================================
+%                              ENDOSCOPE MODELING
+% ==============================================================================
 \subsection{Endoscope Modeling}
 
 The endoscope acts as the \textbf{``eyes and hands''} of our system. Clinical endoscopes are incredible feats of engineering, packing an HD camera, illumination, and steering mechanics into a flexible tube just \textbf{9 to 13 millimetres} thick. While standard colonoscopes are up to 170\,cm long, simulating their full soft-body physics in Unity would instantly kill our frame rate and make deep reinforcement learning impossible. 
@@ -11,7 +19,7 @@ Instead, we relied on \textbf{smart abstraction}, focusing purely on the functio
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\linewidth]{assets/model-Endo Dim 1.png}
+\includegraphics[width=0.6\linewidth]{assets/model-Endo Dim 1.png}
 \caption{Full-length 3D renders of our endoscope model (170\,cm).}
 \label{fig:model_endoscope_full}
 \end{figure}
@@ -19,18 +27,23 @@ Instead, we relied on \textbf{smart abstraction}, focusing purely on the functio
 \paragraph{Distal tip isolation and steering.}
 The agent only controls the \textbf{distal tip}, modeled as a \textbf{rigid cylinder} on an \textbf{articulated kinematic joint} mimicking a flexible \textbf{bending section}. Rotational \textbf{pitch} and \textbf{yaw} are capped at \textbf{160 degrees}, and steered via smoothed \textbf{controlled torques}. Figure~\ref{fig:model_endoscope_head} details the physical control head.
 
+In a physical clinical setting, this angulation is achieved via two \textbf{nested control knobs} manipulated by the physician's thumb. These dials pull on internal \textbf{Bowden cables} (steering wires) running the entire 170\,cm length of the insertion tube, culminating in the bending section. This mechanical linkage introduces significant \textbf{hysteresis, friction, and nonlinear responsiveness}---commonly referred to as \textbf{``whip'' or ``backlash.''} By abstracting this intricate mechanical reality into a \textbf{kinematic joint} steered via direct torques, we bypass the computationally devastating task of simulating cable friction. Consequently, our agent learns an \textbf{idealized, instantaneous mapping} from visual input to tip angulation. While this introduces a notable \textbf{\textit{sim-to-real} gap}---where the simulated endoscope feels substantially more responsive than a real one---it intentionally isolates the core visual-navigation problem from the chaotic physics of mechanical cable actuation. Future work could introduce \textbf{synthetic delay or noise} into these control signals to eventually bridge this gap for physical deployment.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\linewidth]{assets/model-Endo Dim 2.png}
+\includegraphics[width=0.6\linewidth,trim=0 0 0 2cm,clip]{assets/model-Endo Dim 2.png}
 \caption{Close-up of the endoscope control head (approx. 40\,cm).}
 \label{fig:model_endoscope_head}
 \end{figure}
 
 
 \paragraph{The insertion tube abstraction.}
-Simulating a 170\,cm flexible tube via FEM would cripple frame rates. Instead, we \textbf{decouple forward translation from tip articulation}. The tip attaches to an \textbf{invisible kinematic pusher} gliding along a centerline spline at \textbf{2\,cm/s}. Freed from soft-body physics, the agent focuses purely on \textbf{local visual steering}, preserving \textbf{hundreds of frames per second} for Deep RL!
+Simulating a 170\,cm flexible tube via FEM would cripple frame rates. Instead, we \textbf{decouple forward translation from tip articulation}. The tip attaches to an \textbf{invisible kinematic pusher} gliding along a centerline spline at \textbf{2\,cm/s}. By constraining the forward momentum to a predetermined trajectory, we effectively remove the complex task of insertion dynamics---like loop formation or colonic stretching---from the learning objective. This radical simplification ensures training remains computationally viable while still providing a rigorous testbed. Freed from soft-body physics, the agent focuses purely on \textbf{local visual steering}, preserving \textbf{hundreds of frames per second} for Deep RL!
 
 
+% ==============================================================================
+%                                 SNARE MODELING
+% ==============================================================================
 \clearpage
 \subsection{Snare Modeling}
 
@@ -44,6 +57,8 @@ If the endoscope is the agent's eyes, the polypectomy snare is its fingers. Clin
 \end{figure}
 
 A standard catheter is 2.3 to 2.8\,mm thick, but the metallic wire loop is incredibly thin - usually just \textbf{0.30 to 0.47\,mm}! Yet, this loop can expand up to \textbf{35\,mm} in diameter. Because the wire's collision mesh is infinitesimally thin, high-velocity interactions frequently cause the engine to miss intersections entirely. This ``quantum tunneling'' or ``clipping'' means the wire passes straight through the polyp. Enforcing continuous collision detection prevents clipping but causes immense computational overhead and ``explosive'' physics glitches.
+
+When continuous collision detection (CCD) is enforced on such fine geometry, physics engines like Unity attempt to calculate penetrations at every micro-step. If a 0.3\,mm wire even slightly overlaps a dense polyp mesh during a rapid rotational maneuver, the engine registers a deep penetration. To resolve this, it applies massive corrective penalty forces, often catapulting the snare across the virtual colon or causing it to vibrate violently. These unpredictable physical explosions immediately corrupt the reinforcement learning state space, feeding the agent catastrophic reward penalties that completely derail training. The agent essentially learns to fear moving the snare at all, leading to overly conservative policies that fail to capture the target. Consequently, finding an alternative to traditional soft-body physics wasn't just a performance optimization---it was an absolute mathematical necessity to maintain a stable training environment.
 
 To fix this, we abandoned soft-body dynamics for a \textbf{clever geometric abstraction}: a semi-rigid, articulated polygon structure. 
 \begin{itemize}
@@ -66,6 +81,9 @@ The brilliance lies in the collision handling. Instead of an ultra-thin mesh, we
 
 
 
+% ==============================================================================
+%                                 COLON MODELING
+% ==============================================================================
 \clearpage
 \subsection{Colon Modeling}
 
@@ -76,7 +94,7 @@ Reproducing this topology is a \textbf{fundamental requirement} for Deep RL. Ins
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\linewidth]{assets/model-Colon Dim.png}
-\caption{The colon 3D model in wireframe and shaded views, showing anatomical dimensions and haustral curves.}
+\caption{The colon 3D model in wireframe and shaded views, showing dimensions.}
 \label{fig:model_colon_dim}
 \end{figure}
 
@@ -88,21 +106,21 @@ The haustra were sculpted using \textbf{displacement modifiers} to create organi
 \paragraph{Texture, lighting, and the specular nightmare.}
 The wet, vascular mucosal lining creates localized reflections called \textbf{specular highlights}. While gastroenterologists navigate these daily, they mask features and cause false-positive edges for CNNs. 
 
-We built a custom \textbf{physically based rendering (PBR)} shader with a fleshy albedo map and high-smoothness specular map. We paired this with a rapidly decaying \textbf{point light} attached to the camera, mimicking a real endoscope. Figure~\ref{fig:model_colon_insides} illustrates the resulting interior view.
+We built a custom \textbf{physically based rendering (PBR)} shader with a fleshy albedo map and high-smoothness specular map. We paired this with a rapidly decaying \textbf{point light} attached to the camera, mimicking a real endoscope. To further enhance realism, the shader incorporates a subtle \textbf{subsurface scattering} effect, simulating the way light penetrates and diffuses through biological tissue. Coupled with the point light's inverse-square attenuation, this setup ensures distant curves fade realistically into pitch black, forcing the agent to rely solely on proximal visual cues. Figure~\ref{fig:model_colon_insides} illustrates the resulting interior view.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\linewidth]{assets/model-Colon Insides.png}
-\caption{Interior view showing haustral mesh topology and our custom PBR shader with dynamic point-light illumination.}
+\includegraphics[width=0.6\linewidth]{assets/model-Colon Insides.png}
+\caption{Interior view showing mesh topology and our custom PBR shader with dynamic point-light illumination.}
 \label{fig:model_colon_insides}
 \end{figure}
 
-\paragraph{Why lighting matters.}
-This environment is highly challenging: intense \textbf{specular highlights}, \textbf{dynamic shadows}, and \textbf{light attenuation} create harsh gradients. Processing this visual noise forces the CNN to learn \textbf{robust, invariant features}.
+This environment is highly challenging: intense \textbf{specular highlights}, \textbf{dynamic shadows}, and \textbf{light attenuation} create harsh gradients. Because the light source is physically attached to the moving endoscope tip, the illumination field is inherently volatile. As the camera navigates the colon's tight curves, previously well-lit \textbf{haustral folds} are plunged into darkness while newly exposed \textbf{mucosal surfaces} flare with blinding reflections. This relentless \textbf{photometric variation} completely breaks traditional edge-detection techniques, which rely on stable lighting. By faithfully simulating these chaotic lighting conditions, we actively prevent the agent from memorizing brittle, \textbf{overfit visual patterns}. Instead, processing this relentless visual noise forces the \textbf{convolutional neural network (CNN)} to learn \textbf{robust, invariant features} that encode true \textbf{spatial depth} and \textbf{topological geometry}, rather than superficial pixel intensities. This ensures the resulting \textbf{navigation policy} is inherently resilient and mathematically primed for eventual \textbf{clinical deployment}.
 
 
-
-
+% ==============================================================================
+%                                 POLYP MODELING
+% ==============================================================================
 \clearpage
 \subsection{Polyp Modeling}
 
@@ -110,8 +128,8 @@ The procedure's target is the \textbf{colorectal polyp}. The Paris classificatio
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\linewidth]{assets/model-Polyp Dimensions.png}
-\caption{Our pedunculated polyp model (PBR material and wireframe), measuring 30\,mm by 80\,mm.}
+\includegraphics[width=0.6\linewidth]{assets/model-Polyp Dimensions.png}
+\caption{Polyp 3D model (PBR material and wireframe), measuring 30\,mm by 80\,mm.}
 \label{fig:model_polyp_dim}
 \end{figure}
 

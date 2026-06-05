@@ -170,9 +170,16 @@ Reward Signal & Extrinsic only (strength 1.0) \\
 By tuning these parameters carefully, the agent learned to smoothly navigate complex colon geometry without relying on any external positioning sensors - paving the way perfectly for Phase 2!
 
 \subsection{The ``20-Agent Crash''}
-Training an RL agent is never a straightforward path. Initially, we tried to drastically speed up the process by spawning \textbf{20 agents simultaneously} and running the simulation at $20\times$ speed. Unfortunately, Unity struggled to distribute the physics load, bottlenecking on a single CPU core. This caused major instability and forced us to rewrite significant chunks of the environment.
+Training an RL agent is never a straightforward path. Initially, we tried to drastically speed up the process by spawning \textbf{20 agents simultaneously} and running the simulation at $20\times$ speed. Unfortunately, Unity struggled to distribute the physics load, bottlenecking on a single CPU core. This caused major instability and forced us to rewrite significant chunks of the environment. When twenty endoscopes interacted with twenty colon meshes simultaneously at hyperspeed, the physics engine collapsed. Frame drops allowed the endoscopes to physically tunnel through the colon walls into the virtual void. Worse, because RL strictly synchronizes physics with action steps, these lag spikes corrupted the neural network's observation buffer. The agent began receiving observations that were completely desynchronized from its actions, forcing it to learn from a chaotic, delayed reality. This bottleneck revealed a crucial lesson: brute-forcing parallel environments is counterproductive if the underlying physics engine cannot guarantee strict, deterministic execution. Consequently, we had to completely abandon our ambitious multi-agent setup.
 
 \subsection{Training Results}
-Eventually, we pivoted to a single-agent training pipeline. This let us carefully observe the agent's behavior during each run and iteratively tweak hyperparameters and reward structures. It took \textbf{15 complete retrain attempts} - with each run lasting anywhere from 8 to 30 hours - before we finally discovered the golden configuration that produced a reliable, collision-free driving policy. For Phase 1, the agent ultimately achieved a \textbf{best score of 14.67}, taking \textbf{6.5 million steps} over a grueling \textbf{4 days} of training.
+Eventually, we pivoted to a \textbf{single-agent training pipeline}. This let us carefully observe the agent's behavior during each run and iteratively tweak \textbf{hyperparameters} and \textbf{reward structures}. It took \textbf{15 complete retrain attempts} - with each run lasting anywhere from 8 to 30 hours - before we finally discovered the \textbf{golden configuration} that produced a reliable, \textbf{collision-free driving policy}. For Phase 1, the agent ultimately achieved a \textbf{best score of 14.67}, taking \textbf{6.5 million steps} over a grueling \textbf{4 days} of training. By isolating the training to a single environment, we avoided the catastrophic forgetting and unstable gradients that plagued our earlier multi-agent asynchronous approaches. The resulting policy demonstrated remarkable robustness, smoothly navigating the tightest haustral flexures without triggering the collision penalties. Figure~\ref{fig:nav_dashboard} displays the telemetry and learning curves from this definitive run.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\linewidth]{assets/dashboard-3.jpg}
+\caption{Training telemetry dashboard for Phase 1, showing the convergence of cumulative reward and episode length over 6.5 million steps.}
+\label{fig:nav_dashboard}
+\end{figure}
 
 \clearpage
