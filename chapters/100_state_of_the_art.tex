@@ -15,20 +15,22 @@ lesion detection during routine colonoscopy \cite{wang2019cade,repici2020cade}.
 
 The chapter moves from the clinical context to the learning methods used in intelligent
 systems. Along the way, we keep an eye on the practical things that matter most here:
-\textbf{data quality}, \textbf{safety}, \textbf{robustness}, and \textbf{evaluation}. Those are not just side details; they
-shape the design choices in the rest of the document.
+\textbf{data quality}, \textbf{safety}, \textbf{robustness}, and \textbf{evaluation}. Ultimately, bridging these domains allows us to translate strict medical protocols into mathematical reward signals, providing a solid foundation for training a safe and effective autonomous endoscopic navigation policy. By merging real-world clinical constraints with advanced simulated environments, we can systematically address the unpredictable physics of the colon, ensuring that the resulting AI agent behaves predictably and avoids catastrophic failures.
 
 \textbf{Chapter roadmap:} We start with colorectal polyps and polypectomy, then move to
 Artificial Intelligence as the broader field. After that, we cover deep reinforcement learning
 as the main framework for sequential decision-making, and we review the neural
 architectures used for perception and temporal modeling (\textbf{CNN} and \textbf{LSTM}). We end with
 Proximal Policy Optimization (\textbf{PPO}), the policy-gradient method used in the simulation.
+
 \input{chapters/101_polypectomy}
 \input{chapters/102_artificial_intelligence}
 \input{chapters/103_RL}
 \input{chapters/104_CNN}
 \input{chapters/105_LSTM}
 \input{chapters/106_PPO}
+
+\input{chapters/107_related_work}
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}

@@ -2,7 +2,7 @@
 \section{Temporal Memory with LSTMs}
 \label{sec:lstm}
 
-\subsection{Why One Frame is Not Enough}
+\subsection{The Insufficiency of Single Frames}
 
 When a doctor performs a colonoscopy, they do not make decisions based on a single frozen image. They watch the video, notice how the scene changes over time, and use that context to understand what is happening. For example, if the camera just passed a fold, the doctor knows that the view will open up in a moment. If the polyp was visible two seconds ago but disappeared, the doctor knows it is probably just behind the current camera angle.
 
@@ -10,9 +10,16 @@ An Deep RL agent that only looks at the current frame misses all of this context
 
 This is where \textbf{Long Short-Term Memory} (LSTM) networks come in. They are a type of recurrent neural network designed to remember important information across several time steps and forget the rest \cite{hochreiter1997lstm}.
 
-\subsection{How LSTMs Remember What Just Happened}
+\subsection{LSTM Memory Mechanisms}
 
 A normal neural network processes each input independently. It has no memory of what came before. A \textbf{recurrent neural network} (RNN) tries to fix this by passing information from one time step to the next. But standard RNNs have a big problem: they struggle to remember things from more than a few steps back because the learning signal fades away during training. This is called the \textbf{vanishing gradient problem}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\linewidth]{assets/diagram-lstm-generic.png}
+\caption{LSTM Generic Architecture}
+\label{fig:lstm}
+\end{figure}
 
 LSTMs were invented specifically to solve this issue. They use a clever system of three \textbf{gates} that control the flow of information:
 
@@ -23,13 +30,6 @@ LSTMs were invented specifically to solve this issue. They use a clever system o
 \end{itemize}
 
 The combination of these gates gives the LSTM the ability to keep useful information for many time steps and discard the rest. This makes it much better than a standard RNN for tasks where the context from a few seconds ago still matters.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\linewidth]{assets/diagram-lstm-generic.png}
-\caption{LSTM Generic Architecture}
-\label{fig:lstm}
-\end{figure}
 
 \subsection{Helping the Agent Keep Track During a Procedure}
 
@@ -42,3 +42,5 @@ This setup helps the agent in several concrete ways:
 \item During \textbf{extraction}, the LSTM helps the agent track the polyp position over time, even if it briefly goes out of view. It also helps the agent remember whether the snare has already been extended or not.
 \item In both phases, the LSTM \textbf{smooths the agent's behaviour} over time, reducing sudden and erratic movements that could happen if the agent only reacted to individual frames.
 \end{itemize}
+
+Without this recurrent memory, the agent would suffer from \textbf{partial observability}---a condition where a single image does not contain enough information to make a safe decision. By sustaining a continuous temporal context, the LSTM essentially bridges the gap between isolated camera snapshots and the continuous, dynamic reality of a clinical endoscopy, ensuring the procedure remains smooth and safe despite temporary visual occlusions.

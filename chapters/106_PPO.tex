@@ -2,15 +2,22 @@
 \section{Proximal Policy Optimization (PPO)}
 \label{sec:ppo}
 
-\subsection{The Problem with Big Updates}
+\subsection{Challenges of Large Policy Updates}
 
 In deep reinforcement learning, the agent improves by updating its policy after collecting experience from the environment. But there is a tricky problem: if the update is too big, the policy can change so much that it starts making terrible decisions. This is a bit like a student who learns one good trick and then overuses it everywhere, even where it does not apply. The agent's performance can collapse overnight.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\linewidth]{assets/diagram-ppo-generic.png}
+\caption{PPO Generic Architecture}
+\label{fig:ppo_generic}
+\end{figure}
 
 Early policy gradient methods like \textbf{REINFORCE} suffered from this exact issue \cite{williams1992reinforce}. They had high variance, meaning the learning signal was very noisy, and a single bad update could undo hours of training. To fix this, researchers came up with \textbf{Trust Region Policy Optimization} (TRPO), which adds a mathematical constraint to make sure each update stays small and safe \cite{schulman2015trpo}. The idea is to keep the new policy ``close'' to the old one, measured by a quantity called the \textbf{KL divergence}.
 
 TRPO works well in theory, but it is complicated to implement and slow to run because it needs second-order optimisation (computing the Hessian matrix). That is where PPO comes in.
 
-\subsection{How PPO Keeps Learning Stable with Clipping}
+\subsection{Stabilizing Learning with PPO Clipping}
 
 \textbf{Proximal Policy Optimization} (PPO) was introduced by Schulman et al. at OpenAI in 2017, and it quickly became one of the most popular Deep RL algorithms in the world \cite{schulman2017ppo}. The reason is simple: PPO gives you most of the stability benefits of TRPO, but with a much simpler implementation.
 
@@ -24,12 +31,6 @@ where $\hat{A}_t$ is the \textbf{advantage estimate} (how much better this actio
 
 In simple terms: PPO says ``improve, but do not go crazy.'' If the update would change the policy too much, PPO automatically limits it. This is what makes training so stable compared to older methods.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\linewidth]{assets/diagram-ppo-generic.png}
-\caption{PPO Generic Architecture}
-\label{fig:ppo_generic}
-\end{figure}
 
 \subsection{The Actor-Critic Setup}
 
@@ -64,7 +65,7 @@ Entropy coefficient & 0.0 to 0.01 & Encourages exploration \\ \hline
 \label{tab:ppo_hyperparams}
 \end{table}
 
-\subsection{Why PPO is a Good Fit for Our Simulation}
+\subsection{Suitability of PPO for the Simulation}
 
 We chose PPO for this project for several practical reasons. First, it is \textbf{stable}. Endoscopy is a task with noisy visual input (reflections, motion blur, changing lighting), and PPO handles that noise well because it does not overreact to any single batch of data. Second, it is \textbf{simple to implement}. The clipped objective is just a few lines of code, and excellent open-source libraries like \textbf{Stable Baselines3} provide ready-to-use PPO implementations. Third, it works well with \textbf{continuous actions}, which is important because our agent needs to output smooth, precise movements rather than choosing from a small set of discrete options.
 

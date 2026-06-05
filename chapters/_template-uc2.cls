@@ -13,7 +13,7 @@
 \def\universityLongEn{University of Abdelhamid Mehri -- Constantine 2} 
 \def\facultyLongEn{Faculty of New Technologies of Information and Communication (NTIC)} 
 \def\memoirEn{Master's Thesis}
-\def\obtainEn{to obtain the diploma of Master degree in Computer Science}
+\def\obtainEn{\textit{to obtain the diploma of Master degree in Computer Science}}
 \def\studentsEn{Realized by:}
 \def\supervisorsEn{Under the supervision of:}
 

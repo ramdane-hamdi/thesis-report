@@ -8,6 +8,13 @@ A \textbf{Convolutional Neural Network} (CNN) is a type of neural network that i
 
 The name ``convolutional'' comes from the mathematical operation used to apply these filters. What makes CNNs so efficient is that the same filter is reused across the entire image. This is called \textbf{weight sharing}, and it means the network does not need a separate set of parameters for every pixel. That is why CNNs can handle large images without needing billions of parameters.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\linewidth]{assets/diagram-cnn-generic.png}
+\caption{How a typical CNN processes an image through convolution, and pooling layers.}
+\label{fig:cnn_architecture}
+\end{figure}
+
 A typical CNN has a few types of layers that work together:
 
 \begin{itemize}
@@ -19,12 +26,6 @@ A typical CNN has a few types of layers that work together:
 
 CNNs have been behind many of the biggest breakthroughs in computer vision. \textbf{AlexNet} won the ImageNet competition in 2012 and started the deep learning revolution in vision \cite{krizhevsky2012alexnet}. A few years later, \textbf{ResNet} showed that networks with over 100 layers could be trained successfully by using skip connections \cite{he2016resnet}. In medical imaging, \textbf{U-Net} became the go-to architecture for tasks like segmenting organs and lesions in scans \cite{ronneberger2015unet}.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\linewidth]{assets/diagram-cnn-generic.png}
-\caption{How a typical CNN processes an image through convolution, and pooling layers.}
-\label{fig:cnn_architecture}
-\end{figure}
 
 \subsection{Why CNNs Are Good for Endoscopic Video}
 
@@ -34,12 +35,5 @@ Despite all these challenges, CNNs have shown impressive results in endoscopy. A
 
 What makes CNNs well suited for this task is their ability to learn visual features that are robust to all the noise and variation mentioned above. With enough training data and good augmentation techniques (like randomly changing brightness, adding blur, or flipping images), a CNN can learn to focus on the important patterns and ignore distractions like reflections or motion blur.
 
-In our project, the CNN is not used as a standalone detector. Instead, it acts as a \textbf{visual encoder} that turns the raw camera image into a compact set of features. These features are then passed to the Deep RL agent so it can understand the scene and decide what to do next.
+In our project, the CNN is not used as a standalone detector. Instead, it acts as a \textbf{visual encoder} that turns the raw camera image into a compact set of features. These features are then passed to the Deep RL agent so it can understand the scene and decide what to do next. Because our simulation environment generates purely synthetic visual data, the CNN must be capable of extracting rich, generalizable representations that accurately capture the geometry of the lumen and the exact position of the target polyp. Rather than simply drawing a bounding box, the encoder distills the high-dimensional frame into a dense vector of latent features. These features provide the RL agent with crucial spatial awareness---such as the relative distance between the endoscope tip and the colon wall---which is essential for executing safe, collision-free navigational maneuvers.
 
-\subsection{What Our Agent Sees: Colon Walls and Polyp Targets}
-
-The agent in our simulation receives two types of visual input. The first is the \textbf{main camera view}, which shows the colon wall, the lumen (the open space inside the colon), and any polyps that might be visible. This is similar to what a real endoscopist sees on the screen during a procedure. The second input can include additional information like depth or tool position, depending on the task phase.
-
-For the navigation phase, the CNN needs to help the agent understand the shape of the tunnel ahead. Is the colon bending left or right? Is there an obstacle? Is the view clear or blocked by fluid? For the extraction phase, the CNN needs to help the agent see where the polyp is relative to the snare tool, how far away it is, and whether the snare is in the right position to close.
-
-The important point is that the CNN does not need to be perfect. It does not need to classify the polyp type or measure its exact size. It just needs to produce features that are \textbf{good enough} for the Deep RL agent to make reasonable decisions. This is a more forgiving task than pure detection, and it means we can use a relatively simple CNN architecture without sacrificing too much performance.

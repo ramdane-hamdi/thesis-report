@@ -3,13 +3,9 @@
 
 \section*{Conclusion}
 \begin{flushleft}
-This work explored how intelligent methods can support polypectomy by combining
-computer vision and deep reinforcement learning. The main takeaway is simple: it is not a
-single-image classification problem, but a sequential decision problem where each
-action changes what comes next.
+This thesis explored the intersection of computer vision, deep reinforcement learning, and endoscopic surgery to address one of the most technically demanding procedures in modern medicine: colorectal polypectomy. Navigating a 2,000 cm\textsuperscript{2} colon and precisely manipulating a snare around a polyp is not merely a static image classification problem. Instead, it is a highly complex, sequential decision-making challenge where every action directly alters the subsequent state and observation.
 
-The main contribution is a structured base for building adaptive systems that can assist
-decision-making in visually complex settings. Future work could make the simulation more
-realistic, use richer data, and connect the framework more closely to real endoscopic
-workflows.
+To tackle this, we developed a sophisticated, physics-driven Unity simulation to train vision-only agents. By decoupling the procedure into two distinct phases - endoscope navigation and snare capture - we significantly reduced the exploration burden on the AI. In the first phase, our agent learned to safely steer the endoscope tip through the tortuous haustral folds of the colon, actively avoiding collisions by interpreting real-time visual cues like specular highlights and dynamic shadows. In the second phase, the agent mastered the intricate manipulation required to loop a snare around a pedunculated polyp, guided by a carefully engineered ``breadcrumb'' reward system and curiosity-driven exploration. Both phases utilized Proximal Policy Optimization (PPO) alongside Convolutional Neural Networks (CNNs) and LSTM memory to achieve robust, safe, and reliable policies.
+
+The main contribution of this work is establishing a structured, software-first foundation for building adaptive, semi-autonomous systems capable of assisting doctors in visually complex and chaotic operating environments. While our simulation provides a critical stepping stone, future work must focus on bridging the reality gap: incorporating more realistic tissue deformations, training on richer clinical datasets, and ultimately integrating these intelligent policies into real-world robotic endoscopy hardware.
 \end{flushleft}

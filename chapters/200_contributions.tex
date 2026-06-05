@@ -2,8 +2,8 @@
 \chapter{Contributions}
 \label{chap:contributions}
 
-Welcome to the core of the project! This chapter documents our main technical contribution: a \textbf{two-phase} Unity simulation that uses deep reinforcement learning for \textbf{endoscope navigation} and \textbf{snare capture}. 
-
+\section{Introduction}
+In this chapter we'll document our main technical contribution: a \textbf{two-phase} Unity simulation that uses deep reinforcement learning for \textbf{endoscope navigation} and \textbf{snare capture}.
 Robotic or assisted endoscopy really needs two main capabilities: robust navigation through some very constrained anatomical spaces, and precise manipulation when a therapeutic action (like sniping a polyp) is required. Did you know that the colon has a total internal surface area of roughly 2,000 cm\textsuperscript{2}? That's about the size of a small desk crammed into your belly! Navigating it is no joke. To make the learning process tractable for our AI, we split the work into two distinct phases: Phase~1 (navigation) and Phase~2 (snare capture). Separating these tasks simplifies training, dramatically reduces the exploration burden, and enables us to evaluate each capability clearly.
 
 \textbf{What this project is - and what it is not:}
