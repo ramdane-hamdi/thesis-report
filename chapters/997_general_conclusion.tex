@@ -12,7 +12,7 @@ Ultimately, the core contribution of this work is proving that we can build a so
 
 \section{Limitations}
 
-As much as We are content with this project, let's be totally honest about the hurdles. First off, our physics are heavily simplified. We haven't implemented true \textbf{soft-tissue deformation}, which means the colon walls don't squish and stretch realistically when the endoscope bumps into them. Secondly, under the hood, our polyps are basically clever \textbf{geometric sphere-proxies} rather than fully anatomical soft-body simulations. Finally, training a brilliant policy in a simulator is one thing, but throwing it into a real, messy clinical setting is a whole different beast. AI researchers call this the \textbf{sim-to-real gap}, and it's a massive hurdle that regularly breaks even the toughest Deep RL models.
+While we are incredibly proud of the results achieved in this project, there are naturally a few limitations to keep in mind. First, to ensure the simulation runs at lightning speed, we opted out of using true \textbf{soft-tissue deformation}. Instead, we modeled the environment using efficient \textbf{geometric sphere-proxies} rather than fully anatomical soft-body physics. Finally, taking this technology from the simulator to the clinic means bridging the \textbf{sim-to-real gap}. Given the timeframe of this thesis, we simply didn't have enough time or access to a physical endoscope to rigorously test our trained models in a real hospital setting.
 
 \section{Future Work}
 
