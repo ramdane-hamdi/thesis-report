@@ -1,45 +1,101 @@
-\chapter{Section 1275}
+\chapter{Section 1275 (Startup)}
 \label{chap:startup}
-
 This chapter outlines the startup project established within the framework of Ministerial Decree 1275, aimed at obtaining a startup certificate. The project translates our research on intelligent polypectomy into a viable business proposition.
 
-\section*{Project Identity}
+\section{Project Identity}
 \begin{itemize}
     \item \textbf{Project Title:} Polypectomy with Deep Reinforcement Learning
     \item \textbf{Trademark / Brand Name:} Reinova
 \end{itemize}
 
-\section*{Information Card}
-\subsection*{Supervisory Team}
-\begin{itemize}
-    \item \textbf{Main Supervisor:} Pr. Chaker Mezioud
-\end{itemize}
+\begin{center}
+    \includegraphics[width=0.4\textwidth]{assets/startup-logo 1.png}
+    \vspace{0.5cm}
 
-\subsection*{Project Team}
-\begin{itemize}
-    \item \textbf{Student:} Hamdi Ramdane
-    \item \textbf{Student:} Fellah Haithem
-\end{itemize}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|l|}
+        \hline
+        \rowcolor{blue!15}
+        \multicolumn{2}{|c|}{\textbf{Supervisory Team}} \\
+        \hline
+        \rowcolor{white}
+        Main Supervisor & Pr. Chaker Mezioud \\
+        \hline
+        \rowcolor{blue!15}
+        \multicolumn{2}{|c|}{\textbf{Project Team}} \\
+        \hline
+        \rowcolor{white}
+        Student (SDIA) & Hamdi Ramdane \\
+        \rowcolor{white}
+        Student (SDIA) & Fellah Haithem \\
+        \hline
+    \end{tabular}
+\end{center}
 
-\section*{Project Idea \& Proposed Solution}
-\textbf{Field of Activity:} Healthcare Technology, Artificial Intelligence, Medical Software.
+\clearpage
+\section{Project Idea (Proposed Solution)}
 
-\textbf{Overview:}
-The project aims to develop a deep reinforcement learning-based solution for intelligent polypectomy, assisting in the navigation of endoscopes and the precise capture of polyps. By utilizing a two-phase vision-only agent, the system can learn purely from camera images without requiring explicit physical sensors, paving the way for advanced assisted endoscopy.
+\textbf{Field of Activity:} Healthcare Technology, Artificial Intelligence, and Medical Software.
 
-\section*{Value Proposition}
+\vspace{0.2cm}
+\textbf{How did the idea begin and how did it develop?} \\
+The concept originated from the need to reduce human error and minimize the high dependence on manual expertise during colonoscopies. Initially focused on simply detecting polyps (CADe), the idea evolved into a more ambitious active intervention approach. By leveraging cutting-edge deep reinforcement learning, we shifted towards developing a system that can actively assist in both the navigation of the endoscope and the precise capture (resection) of polyps.
+
+\vspace{0.2cm}
+\textbf{What are we going to do?} \\
+We are developing a deep reinforcement learning-based solution for intelligent polypectomy. The system uses a two-phase vision-only agent to assist in endoscopic navigation and the automated snare capture of polyps without requiring expensive multi-sensor calibration.
+
+\vspace{0.2cm}
+\textbf{How will that be done?} \\
+The solution will be developed by training an RL agent (utilizing algorithms such as PPO and LSTM) within a simulated Unity environment that mimics the colon's geometry. The agent will learn purely from visual inputs (camera images) to perform the therapeutic actions, simulating a software-first approach.
+
+\vspace{0.2cm}
+\textbf{Who will accomplish that?} \\
+The project will be accomplished by our dedicated team of SDIA students, Hamdi Ramdane and Fellah Haithem, under the main supervision of Pr. Chaker Mezioud. The team's responsibilities cover environmental modeling, AI model training, and system integration.
+
+\vspace{0.2cm}
+\textbf{Where will it be accomplished?} \\
+The initial software development, simulation, and laboratory testing will be conducted at our university research facilities. Upon successful prototyping and patent registration, the system will be targeted for clinical validation and deployment in partner hospitals and specialized gastroenterology clinics.
+
+\section{Value Proposition}
 The proposed solution offers value through the following aspects:
 \begin{itemize}
-    \item \textbf{Novelty:} Introducing cutting-edge deep reinforcement learning into endoscopic navigation and manipulation.
-    \item \textbf{Performance:} Achieving high precision in automated snare capture within constrained anatomical spaces.
-    \item \textbf{Risk Reduction:} Minimizing human error during surgical interventions and reducing the likelihood of incomplete resections.
-    \item \textbf{Usability \& Cost Reduction:} Operating seamlessly from vision-only data, reducing the need for expensive additional sensory hardware.
+    \item \textbf{Novelty:} Satisfying an entirely new need by introducing cutting-edge deep reinforcement learning into active endoscopic navigation and manipulation, unlike traditional passive systems.
+    \item \textbf{Performance:} Exceeding expectations by achieving high precision in automated snare capture within constrained anatomical spaces.
+    \item \textbf{Customization:} Offering a highly flexible, software-first approach that can be adapted and integrated into various existing endoscopic hardware setups based on specific hospital needs.
+    \item \textbf{Getting the Job Done:} Directly assisting the surgeon in accomplishing the critical and delicate task of accurately resecting polyps.
+    \item \textbf{Design:} Making the system's design compatible with the surgeon's workflow by operating seamlessly from vision-only data, avoiding the clutter of extra physical sensors.
+    \item \textbf{Cost Reduction:} Helping healthcare providers reduce costs by eliminating the need for expensive multi-sensor calibration or specialized robotic hardware.
+    \item \textbf{Risk Reduction:} Minimizing human error and surgeon fatigue during interventions, effectively reducing the probability of incomplete resections and associated patient risks.
+    \item \textbf{Accessibility:} Making advanced AI-assisted therapeutic capabilities accessible to standard gastroenterology clinics that previously could not afford complex surgical robotics.
+    \item \textbf{Usability \& Convenience:} Providing a highly intuitive system that simplifies complex navigation and resection tasks, making them exceptionally easy and seamless to perform.
 \end{itemize}
 
-\section*{Work Team \& Organization}
-The team is composed of data science and artificial intelligence specialists. The responsibilities are distributed optimally between environmental modeling (Unity), deep reinforcement learning training (PPO, LSTM), and systems integration. Regular communication and agile iterations ensure that both the navigation and resection phases are developed concurrently.
+\section{Work Team \& Organization}
+The team's structure and workflow are organized to effectively drive the project towards obtaining the patent and achieving clinical viability.
 
-\section*{Project Goals \& Timeline}
+\vspace{0.2cm}
+\textbf{Team Members, Skills, and Qualifications:} \\
+The project is driven by a specialized team in the field of Data Science and Artificial Intelligence (SDIA). 
+\begin{itemize}
+    \item \textbf{Hamdi Ramdane \& Fellah Haithem (Students/Founders):} Both members possess strong academic qualifications in AI and software engineering, bringing hands-on experience in training deep reinforcement learning models, computer vision, and Unity 3D environment modeling. Their core role in the patent involves designing and developing the intelligent polypectomy algorithms.
+    \item \textbf{Pr. Chaker Mezioud (Main Supervisor):} Provides high-level academic and technical guidance, ensuring the research aligns with the state-of-the-art and meets the rigorous standards required for patent registration.
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Task Distribution and Responsibilities:} \\
+Tasks are distributed optimally to leverage the strengths of each team member:
+\begin{itemize}
+    \item \textbf{Environmental Modeling:} Developing and simulating the 3D colon geometry and virtual endoscope physics within Unity.
+    \item \textbf{AI Model Training:} Implementing and fine-tuning the two-phase deep reinforcement learning architectures (PPO, LSTM) for navigation and resection.
+    \item \textbf{Systems Integration:} Bridging the trained RL models with the simulation environment and ensuring seamless real-time processing of the vision-only data.
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Interaction and Communication Methods:} \\
+The team employs an Agile methodology, maintaining continuous interaction through weekly sprint meetings and regular technical discussions. Collaborative version control systems (e.g., Git) and shared project management boards are utilized to track progress, solve emerging technical challenges, and ensure that both the navigation and resection phases are developed concurrently and efficiently.
+
+\section{Project Goals \& Timeline}
 The primary innovative goal is to secure a patent for the vision-based RL navigation system. The projected timeline involves the following milestones:
 \begin{enumerate}
     \item Researching patent databases and gathering state-of-the-art information.
@@ -49,27 +105,33 @@ The primary innovative goal is to secure a patent for the vision-based RL naviga
     \item Following up on the patent examination process and addressing reviewers' feedback.
 \end{enumerate}
 
-\section*{Market Analysis \& Business Model}
-\subsection*{Market Segment}
+\section{Market Analysis \& Business Model}
+\subsection{Market Size and Potential}
+The global artificial intelligence in endoscopy market is experiencing rapid expansion, driven by the increasing demand for minimally invasive diagnostic and therapeutic procedures. As of 2026, the market size is estimated at approximately \$2.3 billion, and it is projected to grow at a strong Compound Annual Growth Rate (CAGR) of roughly 24\%, reaching figures between \$14 billion to over \$20 billion by the mid-2030s. 
 \begin{itemize}
-    \item \textbf{Potential Market:} Hospitals, specialized clinics, and global medical equipment manufacturers.
-    \item \textbf{Target Market:} Endoscopic surgery departments seeking AI-assisted tools to improve procedure safety and efficiency.
+    \item \textbf{Potential Market:} Hospitals, specialized gastroenterology clinics, and global medical equipment manufacturers.
+    \item \textbf{Target Market:} Endoscopic surgery departments seeking advanced AI-assisted tools to improve procedure safety, increase throughput, and reduce human error.
 \end{itemize}
 
-\subsection*{Competition Analysis}
-Competitors include traditional medical device companies and emerging med-tech startups focusing on surgical robotics. Our competitive advantage lies in our software-first, vision-only approach, which is adaptable, scalable, and bypasses the need for complex multi-sensor calibration.
+\subsection{Competition Analysis}
+The competitive landscape comprises traditional medical device giants (e.g., Medtronic with the GI Genius module) and emerging med-tech startups focusing on computer vision and surgical robotics (e.g., Iterative Health, Odin Vision). Most existing solutions focus primarily on computer-aided detection (CADe) or diagnosis (CADx) of polyps. 
 
-\subsection*{Financial Overview}
+Our core competitive advantage lies in advancing from passive detection to \textbf{active intervention}. Our software-first, vision-only approach for intelligent polypectomy navigation and resection is highly adaptable, scalable, and bypasses the need for expensive, complex multi-sensor calibration often required by competitors. By relying solely on the endoscope's camera feed, Reinova significantly reduces integration friction for hospitals.
+
+\subsection{Financial Overview and Funding Requirements}
+Developing a medical-grade AI device involves considerable costs, primarily driven by rigorous clinical validation, high-performance computing infrastructure, and regulatory compliance. Tailoring the project for the Algerian startup ecosystem (e.g., aiming for funding via the Algerian Startup Fund - ASF), we estimate a realistic initial seed capital requirement of approximately \textbf{11,000,000 DZD to 19,000,000 DZD} to achieve MVP clinical validation and market entry.
+
 \begin{itemize}
-    \item \textbf{Costs \& Expenses:} Software licensing, high-performance computing hardware (GPUs) for model training, and intellectual property registration fees.
-    \item \textbf{Revenue Streams:} Licensing the AI software to medical device manufacturers, offering software-as-a-service (SaaS) updates, and potential direct sales to healthcare providers.
+    \item \textbf{Regulatory Compliance \& Clinical Validation (4,000,000 DZD - 7,000,000 DZD):} Collaborations with local University Hospitals (CHUs) for initial clinical trials, Quality Management System (QMS) integration, and necessary local certifications.
+    \item \textbf{Software Development \& Infrastructure (5,000,000 DZD - 8,000,000 DZD):} Cloud computing resources (GPUs) for training complex RL models, secure health data storage, and local engineering team salaries over the development cycle.
+    \item \textbf{Intellectual Property \& Operations (2,000,000 DZD - 4,000,000 DZD):} Patent registration (e.g., via INAPI), legal fees, early marketing, and facilitating pilot program deployments in partner hospitals.
+    \item \textbf{Revenue Streams:} In the post-approval phase, we anticipate revenue through licensing the AI software directly to regional healthcare networks (B2B) and offering Software-as-a-Service (SaaS) subscriptions for regular model updates and maintenance.
 \end{itemize}
 
-\section*{Experimental Prototype}
+\section{Experimental Prototype}
 The experimental prototype consists of a simulated Unity environment featuring simplified geometric colon models and a virtual endoscope. It successfully demonstrates the two-phase RL approach (Navigation and Resection). This prototype serves as the foundational proof-of-concept for the startup, showcasing the feasibility of AI-driven therapeutic actions.
 
-\clearpage
-\section*{Business Model Canvas}
+\section{Business Model Canvas}
 
 % \begin{table}[htbp]
 %     \centering
