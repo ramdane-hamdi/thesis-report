@@ -1,0 +1,16 @@
+graph TD
+    Start([Action Received: Slide/Rotate/Close]) --> TentativeMove[Tentative Move Applied in Memory]
+    TentativeMove --> BakeMesh[Instantly Bake New Snare Mesh Geometry]
+    BakeMesh --> CheckCollision{IsSnareOverlappingBlocker?}
+    
+    CheckCollision -->|Native Physics Sphere Overlap| IsPolyp{Hit Polyp Collider?}
+    CheckCollision -->|Vertex-Sampling Fallback| IsColon{Hit Colon Mesh?}
+    
+    IsPolyp -->|Overlap Detected| Blocked[Revert Move & Flag Frame as Blocked]
+    IsColon -->|Overlap Detected| Blocked
+    
+    IsPolyp -->|No Overlap| ValidMove[Commit Move]
+    IsColon -->|No Overlap| ValidMove
+    
+    Blocked --> End([Wait for Next Physics Step])
+    ValidMove --> End

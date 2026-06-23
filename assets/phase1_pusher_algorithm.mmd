@@ -1,0 +1,12 @@
+graph TD
+    Start[Agent Action Step] --> Pusher{EndoscopeBurstPusher Script}
+    Pusher --> |Apply base duration| Push[Push 1.0s + Uniform Jitter]
+    Push --> ApplyForce[Apply 2 cm/s Forward Velocity along Spline]
+    
+    ApplyForce --> CollisionCheck{IsTouchingBlockingLayers?}
+    CollisionCheck -->|Yes - Wall Scrape| Blocked[Reward = -1.0<br/>Terminate Episode]
+    CollisionCheck -->|No| Pause[Pause 4.0s + Uniform Jitter]
+    
+    Pause --> AgentControl[Agent Steers Tip via 5-Discrete Action Branch]
+    AgentControl --> |Action 0..4| Driver[EndoscopeActionDriver]
+    Driver --> Torque[Apply Rotational Torque Vector]

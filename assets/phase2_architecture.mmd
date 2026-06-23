@@ -1,0 +1,44 @@
+graph TD
+    %% Input
+    Input[128x128 RGB Vision Feed] --> Conv1
+    
+    %% CNN Encoder
+    subgraph CNN[CNN Visual Encoder]
+        Conv1[Conv2D: 16 filters, 8x8 kernel, stride 4, LeakyReLU] --> Conv2[Conv2D: 32 filters, 4x4 kernel, stride 2, LeakyReLU]
+        Conv2 --> Flatten[Flatten 8x8x32 to 2048]
+        Flatten --> DenseCNN[Dense: 2048 to 256, LeakyReLU]
+    end
+    
+    DenseCNN --> Dense1
+    
+    %% Body MLP
+    subgraph BodyMLP[Body MLP - Linear Encoder]
+        Dense1[Dense: 256 units, Swish Activation] --> Dense2[Dense: 256 units, Swish Activation]
+    end
+    
+    Dense2 --> LSTM
+    
+    %% LSTM Memory
+    subgraph Memory[LSTM Memory]
+        LSTM[LSTM Core<br/>Sequence Length: 64, Memory Size: 128]
+    end
+    
+    LSTM --> PolicyHead
+    LSTM --> ValueHeadEx
+    LSTM --> ValueHeadICM
+    
+    %% Outputs
+    subgraph Output[Outputs]
+        PolicyHead[Policy Head<br/>MultiCategorical Distribution<br/>4 Branches: 5, 3, 3, 3 Actions<br/>Steer, Slide, Rotate, Actuate]
+        ValueHeadEx[Value Head 1<br/>Extrinsic Reward Stream]
+        ValueHeadICM[Value Head 2<br/>Curiosity Reward Stream]
+    end
+    
+    %% ICM
+    subgraph ICM[Intrinsic Curiosity Module]
+        ICMNet[64 Hidden Units<br/>Curiosity Strength: 0.02<br/>Rewards novel visual states]
+    end
+    
+    Input -.-> ICMNet
+    PolicyHead -.-> ICMNet
+    ICMNet -.-> ValueHeadICM

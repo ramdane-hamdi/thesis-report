@@ -1,7 +1,20 @@
 \clearpage
 \section{Phase 1: Colon Navigation Agent}
 
-Before we even think about snipping off polyps, our agent needs to learn how to \textit{drive}. Phase 1 introduces the \textbf{EndoscopeNavAgent} - a vision-only Deep RL agent whose sole mission is to steer the endoscope tip through the colon without perforating the mucosal wall. The agent acts as the ``eyes and hands'' on the steering dials, while a separate, scripted procedural hand pushes the endoscope forward. This deliberate \textbf{decoupling} of steering from insertion dramatically reduces the exploration complexity and lets the policy focus on the hard part: reading the visual feed and reacting to curves in real time.
+
+Before we even think about snipping off polyps, our agent needs to thoroughly learn how to \textit{drive} through an unpredictable, highly convoluted environment. Phase 1 introduces the \textbf{EndoscopeNavAgent}---a \textbf{vision-only Deep Reinforcement Learning (RL) agent} whose sole, critical mission is to \textbf{steer the endoscope tip} safely through the tortuous geometry of the colon without perforating the sensitive mucosal wall. To achieve this, the agent acts strictly as the ``eyes and hands'' on the directional steering dials. Meanwhile, a separate, \textbf{scripted procedural hand} systematically pushes the endoscope forward along its longitudinal axis. This deliberate \textbf{decoupling of steering from insertion} dramatically \textbf{reduces the mathematical exploration complexity}. By offloading the forward momentum, it allows the policy network to dedicate all its computational resources to the truly difficult challenge: instantly \textbf{reading the complex visual feed}, interpreting anatomical contours, and dynamically \textbf{reacting to sharp curves} in real time to ensure safe navigation.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\linewidth]{assets/architecture-phase1.png}
+\caption{The neural network architecture of the Phase 1 navigation agent.}
+\label{fig:architecture_phase1}
+\end{figure}
+
+The agent relies exclusively on a \textbf{vision-only pipeline}, meaning no external positional sensors or coordinates are used. A \textbf{$128 \times 128$ RGB image} is captured and directly processed by a robust \textbf{2-layer Convolutional Neural Network (CNN)}. This CNN is explicitly designed to \textbf{extract critical spatial features}---such as specular highlights, shadows, and haustral folds---which are then heavily compressed and sequentially passed through a dense \textbf{Body MLP}. Furthermore, to accurately understand directional motion and anatomical context over time, the network architecture utilizes a \textbf{Long Short-Term Memory (LSTM) module} equipped with a \textbf{sequence length of 64}. This temporal component is vital for preventing the agent from getting disoriented in repetitive-looking segments of the colon. Finally, the network's output is split into two distinct branches: a \textbf{Value Head} dedicated to estimating predicted returns, and a \textbf{Policy Head} that conclusively dictates the immediate \textbf{steering action} across \textbf{five discrete choices} (Up, Down, Left, Right, or None).
+
+
 
 \begin{figure}[H]
 \centering

@@ -1,7 +1,17 @@
 \clearpage
 \section{Phase 2: Polyp Extraction Agent}
 
-Once the navigation problem is solved, we arrive at the real boss fight: Phase 2. This is where the \textbf{SnareNavAgent} takes the stage. The environment here is completely different from Phase 1. Instead of driving through a long tunnel, we spawn the agent right near a pre-positioned polyp inside a ``capture zone.'' Now the agent has to rub its belly and pat its head at the exact same time - it must delicately steer the camera tip \textit{and} precisely manipulate the snare tool simultaneously.
+Once the navigation problem is conclusively solved, we arrive at the ultimate surgical challenge: Phase 2. This is where the highly specialized \textbf{SnareNavAgent} takes the stage. The localized environment here is drastically different from Phase 1. Instead of continuously driving through a long tubular tunnel, we directly spawn the agent right near a \textbf{pre-positioned polyp} situated inside a strictly constrained \textbf{``capture zone.''} Now, the agent must execute a highly complex \textbf{dual-control manipulation task}. It has to essentially rub its belly and pat its head at the exact same time---it must delicately \textbf{steer the endoscope camera tip} \textit{and} concurrently \textbf{manipulate the snare tool mechanism} with absolute surgical precision.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\linewidth]{assets/architecture-phase2.png}
+\caption{The neural network architecture of the Phase 2 extraction agent featuring a multi-branch policy head.}
+\label{fig:architecture_phase2}
+\end{figure}
+
+Figure~\ref{fig:architecture_phase2} depicts the advanced architecture explicitly designed for the Phase 2 agent. While the core backbone remains functionally similar to Phase 1---utilizing a robust \textbf{CNN for spatial feature extraction} from the $128 \times 128$ RGB input and an \textbf{LSTM module for temporal memory}---the final output structure is significantly more complex. To handle the new requirements, the \textbf{Policy Head} is definitively split into \textbf{three simultaneous action branches} to control multiple surgical tools at once: \textbf{Branch 0} for continuous steering, \textbf{Branch 1} for \textbf{sliding the snare wire} (Extend/Retract), and \textbf{Branch 2} for \textbf{clamping the snare loop} (Open/Close). This vital \textbf{multi-branch architecture} is what mathematically enables the agent to navigate and operate the snare tool concurrently.
+
 
 
 \begin{figure}[H]
@@ -25,8 +35,6 @@ To handle this complex dual-control requirement, we set up a \textbf{multi-branc
 0 & Steer (WASD) & 0=None, 1=Up, 2=Left, 3=Down, 4=Right \\
 \hline
 1 & Slide (Extend/Retract) & 0=None, 1=Extend, 2=Retract \\
-\hline
-2 & Rotate (Twist) & 0=None, 1=Spin Left, 2=Spin Right \\
 \hline
 3 & Actuate (Open/Close) & 0=None, 1=Open Loop, 2=Close Loop \\
 \hline
