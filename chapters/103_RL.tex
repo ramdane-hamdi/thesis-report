@@ -6,11 +6,11 @@
 
 \textbf{Deep Reinforcement Learning} (Deep RL) is a way of teaching a computer to make good decisions by letting it try things and learn from the results. It is different from other types of machine learning because the agent is not given the right answer. Instead, it gets a \textbf{reward} when it does something good and a \textbf{penalty} when it does something bad. Over time, it figures out which actions lead to the best outcomes \cite{sutton2018reinforcement}.
 
-The basic idea is surprisingly simple. Imagine you are learning to ride a bike. Nobody gives you a manual with every move written down. You just try, fall, adjust, and try again. After a while, you learn to balance without even thinking about it. Deep RL works in a similar way, except the ``bike'' is a simulated environment and the ``rider'' is a software agent.
+The underlying concept is intuitive and analogous to human skill acquisition, such as learning to ride a bicycle through continuous trial and adjustment. Deep RL operates on a similar principle, where the agent refines its policy within a simulated environment through iterative feedback.
 
-What makes Deep RL really powerful is that it can handle problems where the best action depends on the situation. There is no single correct move. The right choice at one moment might be the wrong choice a second later. This makes Deep RL a natural fit for tasks like endoscopy, where the scene keeps changing and the agent has to adapt in real time.
+A key strength of Deep RL is its ability to handle dynamic environments where the optimal action is highly context-dependent. There is no single correct move. The right choice at one moment might be the wrong choice a second later. This makes Deep RL a natural fit for tasks like endoscopy, where the scene keeps changing and the agent has to adapt in real time.
 
-Some of the most famous examples of Deep RL include \textbf{DQN}, which learned to play Atari games at a superhuman level just by watching the screen \cite{mnih2015dqn}, and \textbf{AlphaGo}, which beat the world champion at Go \cite{silver2016alphago}. These results showed that Deep RL can solve problems that were considered way too hard just a few years before.
+Some of the most famous examples of Deep RL include \textbf{DQN}, which learned to play Atari games at a superhuman level just by watching the screen \cite{mnih2015dqn}, and \textbf{AlphaGo}, which beat the world champion at Go \cite{silver2016alphago}. These results demonstrated that Deep RL could resolve highly complex problems that were previously considered intractable.
 
 
 \subsection{States, Actions, Rewards and the MDP}
@@ -53,7 +53,7 @@ The first approach is called \textbf{value-based learning}. Here, the agent lear
 \label{fig:qlearning}
 \end{figure}
 
-The second approach is called \textbf{policy-based learning}. Here, the agent learns the action rule directly, without bothering to estimate values first. The policy is usually a neural network that takes a state as input and outputs probabilities for each action. This approach is often better for \textbf{continuous control}, where the agent needs to output smooth movements instead of choosing from a short list.
+The second approach is called \textbf{policy-based learning}. Here, the agent learns the action policy directly, without explicitly calculating value estimates first. The policy is usually a neural network that takes a state as input and outputs probabilities for each action. This approach is often better for \textbf{continuous control}, where the agent needs to output smooth movements instead of choosing from a short list.
 
 In practice, the best results often come from combining both ideas. This is called the \textbf{actor-critic} approach: the ``actor'' is the policy that chooses actions, and the ``critic'' is a value function that judges how good those actions are. The critic helps reduce the noise in the learning signal, which makes training more stable. PPO, the algorithm we use in this project, is an actor-critic method \cite{schulman2017ppo}.
 

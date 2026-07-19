@@ -2,7 +2,7 @@
 \section{Phase 1: Colon Navigation Agent}
 
 
-Before we even think about snipping off polyps, our agent needs to thoroughly learn how to \textit{drive} through an unpredictable, highly convoluted environment. Phase 1 introduces the \textbf{EndoscopeNavAgent}---a \textbf{vision-only Deep Reinforcement Learning (RL) agent} whose sole, critical mission is to \textbf{steer the endoscope tip} safely through the tortuous geometry of the colon without perforating the sensitive mucosal wall. To achieve this, the agent acts strictly as the ``eyes and hands'' on the directional steering dials. Meanwhile, a separate, \textbf{scripted procedural hand} systematically pushes the endoscope forward along its longitudinal axis. This deliberate \textbf{decoupling of steering from insertion} dramatically \textbf{reduces the mathematical exploration complexity}. By offloading the forward momentum, it allows the policy network to dedicate all its computational resources to the truly difficult challenge: instantly \textbf{reading the complex visual feed}, interpreting anatomical contours, and dynamically \textbf{reacting to sharp curves} in real time to ensure safe navigation.
+Prior to the resection phase, the agent must thoroughly learn to navigate through an unpredictable, highly convoluted environment. Phase 1 introduces the \textbf{EndoscopeNavAgent}---a \textbf{vision-only Deep Reinforcement Learning (RL) agent} whose sole, critical mission is to \textbf{steer the endoscope tip} safely through the tortuous geometry of the colon without perforating the sensitive mucosal wall. To achieve this, the agent acts strictly as the ``eyes and hands'' on the directional steering dials. Meanwhile, a separate, \textbf{scripted procedural hand} systematically pushes the endoscope forward along its longitudinal axis. This deliberate \textbf{decoupling of steering from insertion} dramatically \textbf{reduces the mathematical exploration complexity}. By offloading the forward momentum, it allows the policy network to dedicate all its computational resources to the truly difficult challenge: instantly \textbf{reading the complex visual feed}, interpreting anatomical contours, and dynamically \textbf{reacting to sharp curves} in real time to ensure safe navigation.
 
 
 \begin{figure}[H]
@@ -24,7 +24,7 @@ The agent relies exclusively on a \textbf{vision-only pipeline}, meaning no exte
 \end{figure}
 
 \subsection{The Procedural Forward Push}
-Instead of making the agent learn when and how hard to push forward, we wanted to perfectly mimic how a real doctor operates. A human endoscopist doesn't just jam the scope forward at constant speed. They push in short, controlled bursts, pause to look around, and then push again.
+Instead of making the agent learn when and how hard to push forward, we aimed to replicate clinical operational patterns. A human endoscopist does not advance the scope at a constant, uninterrupted speed. They push in short, controlled bursts, pause to evaluate the visual field, and then resume insertion.
 
 To recreate this, we wrote a script called \texttt{EndoscopeBurstPusher}. It uses a procedural, \textbf{jitter-based burst algorithm}:
 
@@ -70,7 +70,7 @@ While the script pushes, the agent's only job is to steer the camera tip to avoi
 \end{figure}
 
 \subsection{State Space \& The CNN/LSTM Brain}
-The agent is completely \textbf{vision-only}. No coordinates, no radar, no cheat codes. It sees through a tiny RGB camera feed and has to figure out depth and curves purely from the visual \textbf{optic flow} scrolling past the lens. 
+The agent is completely \textbf{vision-only}. It relies entirely on intrinsic visual data without external coordinate systems. It processes a small RGB camera feed and infers depth and curvature purely from the visual \textbf{optic flow} scrolling past the lens. 
 
 To ensure perfect consistency between training in Python and inference in the virtual simulation, we strictly locked the runtime settings in code: \texttt{Time.captureFramerate = 60}, \textbf{quality level 1}, and forced the screen resolution to exactly $128 \times 128$.
 
@@ -78,7 +78,7 @@ The brain architecture is a pipeline of three stages:
 \begin{enumerate}
 \item \textbf{CNN Visual Encoder (SimpleVisualEncoder):} Three convolutional layers crunch the $128 \times 128$ RGB image into a compact \textbf{256-dimensional feature vector}. The first Conv2D layer uses \textbf{16 filters} with an $8 \times 8$ kernel and stride 4 (using \textbf{LeakyReLU} activation). The second uses \textbf{32 filters} with a $4 \times 4$ kernel and stride 2. After flattening ($8 \times 8 \times 32 = 2048$ values), a dense layer compresses everything down to 256 features.
 \item \textbf{Body MLP (LinearEncoder):} Two fully connected layers of \textbf{256 units each} with \textbf{Swish} activation refine the features.
-\item \textbf{LSTM Memory:} A single-layer LSTM with \textbf{sequence length 64} and \textbf{memory size 128} (hidden size 64). This is the secret sauce! The colon is a highly aliased environment - one pink fleshy tunnel looks identical to another. Without temporal memory, the agent cannot tell if it is moving forward, sliding backward, or stuck in a corner.
+\item \textbf{LSTM Memory:} A single-layer LSTM with \textbf{sequence length 64} and \textbf{memory size 128} (hidden size 64). This temporal integration is a critical component. The colon is a highly aliased environment - one mucosal fold looks nearly identical to another. Without temporal memory, the agent cannot determine if it is advancing, retreating, or stationary.
 \end{enumerate}
 
 The LSTM output feeds into a \textbf{policy head} (a single categorical branch of 5 actions, initialized with Kaiming He Normal at gain 0.1) and a \textbf{value head} (one linear layer for the extrinsic reward stream).
@@ -120,15 +120,15 @@ R_t = R_{alive} + R_{goal} - P_{collision} - P_{timeout}
 Here is the exact breakdown:
 \begin{itemize}
     \item $R_{alive} = +0.001$: A tiny positive reward for every step it survives without crashing. This gently encourages continued exploration.
-    \item $R_{goal} = +10.0$: The jackpot! Awarded instantly when the agent successfully reaches the \texttt{GoalTriggerLogger} target deep inside the colon segment.
+    \item $R_{goal} = +10.0$: The primary objective. Awarded instantly when the agent successfully reaches the \texttt{GoalTriggerLogger} target deep inside the colon segment.
     \item $P_{collision} = -1.0$: A harsh penalty if it steers into the mucosal wall. The episode terminates instantly via the \texttt{push\_blocked\_latched} flag.
     \item $P_{timeout} = -0.2$: A small penalty if it takes too long and times out before reaching the goal.
 \end{itemize}
 
 We added a critical gate called \texttt{rewardAliveOnlyWhenSafe}. Without this, the agent could literally press its face safely against a non-fatal wall and farm those $+0.001$ alive points forever! The script actively checks \texttt{IsTouchingBlockingLayers()} and denies the alive reward if the camera is scraping tissue. Collision detection itself uses \textbf{capsule overlaps} along the endoscope bone chain and a \textbf{sphere-cast clamp} at the tip during push operations.
 
-\subsection{Clever Engineering: Safe Resets \& Fallbacks}
-One really annoying problem we ran into was the agent randomly spawning inside the colon mesh when the episode resets. Because the environment is a tight tube, spawning even a millimeter inside the wall causes instant, explosive physics collisions!
+\subsection{Safe Resets \& Fallbacks}
+A significant challenge involved the agent occasionally spawning inside the colon mesh during episode resets. Given the narrow environment, overlapping with the wall geometry triggers immediate and severe physics collisions.
 
 To fix this, we wrote a \textbf{30-step backoff algorithm} called \texttt{ResolveSafeResetPose()}. When the episode begins, if the agent detects it spawned inside a wall, it incrementally backs off by 0.01 units along the opposite direction of its forward vector, checking for collisions at each step. It repeats this up to 30 times until it finds a safe, empty spot to start.
 
@@ -180,13 +180,13 @@ Reward Signal & Extrinsic only (strength 1.0) \\
 \end{tabular}
 \end{table}
 
-By tuning these parameters carefully, the agent learned to smoothly navigate complex colon geometry without relying on any external positioning sensors - paving the way perfectly for Phase 2!
+By tuning these parameters carefully, the agent learned to smoothly navigate complex colon geometry without relying on any external positioning sensors - establishing a solid foundation for Phase 2.
 
-\subsection{The ``20-Agent Crash''}
-Training an RL agent is never a straightforward path. Initially, we tried to drastically speed up the process by spawning \textbf{20 agents simultaneously} and running the simulation at $20\times$ speed. Unfortunately, Unity struggled to distribute the physics load, bottlenecking on a single CPU core. This caused major instability and forced us to rewrite significant chunks of the environment. When twenty endoscopes interacted with twenty colon meshes simultaneously at hyperspeed, the physics engine collapsed. Frame drops allowed the endoscopes to physically tunnel through the colon walls into the virtual void. Worse, because RL strictly synchronizes physics with action steps, these lag spikes corrupted the neural network's observation buffer. The agent began receiving observations that were completely desynchronized from its actions, forcing it to learn from a chaotic, delayed reality. This bottleneck revealed a crucial lesson: brute-forcing parallel environments is counterproductive if the underlying physics engine cannot guarantee strict, deterministic execution. Consequently, we had to completely abandon our ambitious multi-agent setup.
+\subsection{Multi-Agent Instability}
+Training an RL agent is never a straightforward path. Initially, we tried to drastically speed up the process by spawning \textbf{20 agents simultaneously} and running the simulation at $20\times$ speed. Unfortunately, Unity struggled to distribute the physics load, bottlenecking on a single CPU core. This caused major instability and forced us to rewrite significant chunks of the environment. When twenty endoscopes interacted with twenty colon meshes simultaneously at accelerated simulation speeds, the physics engine collapsed. Frame drops allowed the endoscopes to physically tunnel through the colon walls into the virtual void. Worse, because RL strictly synchronizes physics with action steps, these lag spikes corrupted the neural network's observation buffer. The agent began receiving observations that were completely desynchronized from its actions, forcing it to learn from a chaotic, delayed reality. This bottleneck revealed a crucial lesson: brute-forcing parallel environments is counterproductive if the underlying physics engine cannot guarantee strict, deterministic execution. Consequently, we had to completely abandon our ambitious multi-agent setup.
 
 \subsection{Training Results}
-Eventually, we pivoted to a \textbf{single-agent training pipeline}. This let us carefully observe the agent's behavior during each run and iteratively tweak \textbf{hyperparameters} and \textbf{reward structures}. It took \textbf{15 complete retrain attempts} - with each run lasting anywhere from 8 to 30 hours - before we finally discovered the \textbf{golden configuration} that produced a reliable, \textbf{collision-free driving policy}. For Phase 1, the agent ultimately achieved a \textbf{best score of 14.67}, taking \textbf{6.5 million steps} over a grueling \textbf{4 days} of training. By isolating the training to a single environment, we avoided the catastrophic forgetting and unstable gradients that plagued our earlier multi-agent asynchronous approaches. The resulting policy demonstrated remarkable robustness, smoothly navigating the tightest haustral flexures without triggering the collision penalties. Figure~\ref{fig:nav_dashboard} displays the telemetry and learning curves from this definitive run.
+Eventually, we pivoted to a \textbf{single-agent training pipeline}. This let us carefully observe the agent's behavior during each run and iteratively tweak \textbf{hyperparameters} and \textbf{reward structures}. It took \textbf{15 complete retrain attempts} - with each run lasting anywhere from 8 to 30 hours - before we finally discovered the \textbf{optimal hyperparameter configuration} that produced a reliable, \textbf{collision-free driving policy}. For Phase 1, the agent ultimately achieved a \textbf{best score of 14.67}, taking \textbf{6.5 million steps} over an intensive \textbf{4-day training period}. By isolating the training to a single environment, we avoided the catastrophic forgetting and unstable gradients that plagued our earlier multi-agent asynchronous approaches. The resulting policy demonstrated remarkable robustness, smoothly navigating the tightest haustral flexures without triggering the collision penalties. Figure~\ref{fig:nav_dashboard} displays the telemetry and learning curves from this definitive run.
 
 \begin{figure}[H]
 \centering
